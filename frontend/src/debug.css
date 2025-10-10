@@ -1,0 +1,25 @@
+﻿/* ==============================================
+   SKILLS SECTION
+   ============================================== */
+.skills-section {
+  position: relative;
+  padding: 120px 0;
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+  overflow: hidden;
+}
+
+.matrix-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.matrix-line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(to bottom, transparent, var(--brand-primary), transparent);
+  opacity: 0.1;
