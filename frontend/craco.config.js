@@ -13,6 +13,13 @@ module.exports = {
     },
     configure: (webpackConfig) => {
       
+      // Disable CSS optimization temporarily due to syntax issues
+      if (webpackConfig.optimization && webpackConfig.optimization.minimizer) {
+        webpackConfig.optimization.minimizer = webpackConfig.optimization.minimizer.filter(
+          minimizer => !minimizer.constructor.name.includes('CssMinimizerPlugin')
+        );
+      }
+      
       // Disable hot reload completely if environment variable is set
       if (config.disableHotReload) {
         // Remove hot reload related plugins

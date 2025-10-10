@@ -1630,11 +1630,11 @@ body {
 }
 
 .matrix-line:nth-child(odd) {
-  left: calc(var(--delay) / 10);
+  left: calc(var(--delay, 0) * 1px);
 }
 
 .matrix-line:nth-child(even) {
-  right: calc(var(--delay) / 10);
+  right: calc(var(--delay, 0) * 1px);
 }
 
 .skills-container {
