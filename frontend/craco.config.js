@@ -7,6 +7,13 @@ const config = {
 };
 
 module.exports = {
+  style: {
+    css: {
+      loaderOptions: {
+        /* Any css-loader configuration options: https://webpack.js.org/loaders/css-loader/. */
+      },
+    },
+  },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

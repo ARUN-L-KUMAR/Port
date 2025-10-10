@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import axios from "axios";
 import Hero from './components/Hero';
