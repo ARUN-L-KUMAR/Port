@@ -114,10 +114,7 @@ const Contact = () => {
           
           {/* Connection Status */}
           <div className="connection-status">
-            <div className="status-indicator">
-              <Wifi className="status-icon" />
-              <span>Secure Connection Established</span>
-            </div>
+            
             <div className="encryption-level">
               <Shield className="encryption-icon" />
               <span>Quantum Encryption: Active</span>
@@ -134,6 +131,7 @@ const Contact = () => {
                 <Send className="form-icon" />
                 <span>Transmission Interface</span>
               </div>
+              
               <div className="form-status">
                 <div className={`status-light ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : 'ready'}`}></div>
                 <span>

@@ -10,6 +10,8 @@ const Skills = () => {
 
   // Intersection Observer for skill animations
   useEffect(() => {
+    setVisibleSkills(new Set());
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -30,15 +32,21 @@ const Skills = () => {
     skillElements?.forEach(el => observer.observe(el));
 
     return () => observer.disconnect();
-  }, []);
+  }, [activeCategory]);
 
-  // Auto-rotate categories
+  // Auto-rotate categories (only on desktop)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveCategory(prev => (prev + 1) % skills.categories.length);
-    }, 4000);
+    // Check if we're on mobile
+    const isMobile = window.innerWidth <= 768;
+    
+    // Only auto-rotate on desktop
+    if (!isMobile) {
+      const interval = setInterval(() => {
+        setActiveCategory(prev => (prev + 1) % skills.categories.length);
+      }, 4000);
 
-    return () => clearInterval(interval);
+      return () => clearInterval(interval);
+    }
   }, [skills.categories.length]);
 
   const getCategoryIcon = (title) => {
@@ -57,6 +65,17 @@ const Skills = () => {
     if (level >= 70) return '#6FD2C0';
     return '#4D4D4D';
   };
+
+  // Handle window resize to adjust behavior
+  useEffect(() => {
+    const handleResize = () => {
+      // Reset active category when switching between mobile/desktop
+      setActiveCategory(0);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <section ref={skillsRef} className="skills-section" id="skills">
@@ -89,6 +108,7 @@ const Skills = () => {
                 key={index}
                 className={`category-btn ${activeCategory === index ? 'active' : ''}`}
                 onClick={() => setActiveCategory(index)}
+                title={category.title} // Adding title attribute for tooltip on hover
               >
                 {getCategoryIcon(category.title)}
                 <span className="category-title">{category.title}</span>

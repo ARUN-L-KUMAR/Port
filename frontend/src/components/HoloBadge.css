@@ -1,0 +1,586 @@
+/* ==============================================
+   HOLOGRAPHIC BADGE - Lightweight 3D Element
+   Much more performant than 3D cube
+   ============================================== */
+
+.holo-badge-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Outer rotating ring - CSS only, no 3D transforms */
+.outer-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation: ringRotate 20s linear infinite;
+}
+
+@keyframes ringRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ring-segment {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid transparent;
+  border-radius: 50%;
+}
+
+.ring-segment.seg-1 {
+  border-top-color: var(--brand-primary);
+  border-right-color: var(--brand-primary);
+  opacity: 0.8;
+}
+
+.ring-segment.seg-2 {
+  border-bottom-color: var(--accent);
+  border-left-color: var(--accent);
+  opacity: 0.6;
+  animation: ringPulse 3s ease-in-out infinite;
+}
+
+.ring-segment.seg-3 {
+  width: 90%;
+  height: 90%;
+  top: 5%;
+  left: 5%;
+  border-top-color: rgba(0, 255, 209, 0.4);
+  border-left-color: rgba(0, 255, 209, 0.4);
+  animation: ringRotate 15s linear infinite reverse;
+}
+
+.ring-segment.seg-4 {
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  border-bottom-color: rgba(0, 212, 255, 0.3);
+  border-right-color: rgba(0, 212, 255, 0.3);
+  animation: ringRotate 25s linear infinite;
+}
+
+@keyframes ringPulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+/* Badge core - the main content area */
+.badge-core {
+  position: absolute;
+  width: 72%;
+  height: 72%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center,
+    rgba(0, 20, 40, 0.95) 0%,
+    rgba(0, 10, 20, 0.98) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 255, 209, 0.3);
+  overflow: visible;
+}
+
+.core-glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center,
+    rgba(0, 255, 209, 0.15) 0%,
+    transparent 80%);
+  pointer-events: none;
+}
+
+.badge-content {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+  padding: 15px;
+  width: 85%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==============================================
+   IDENTITY CONTENT (Mobile version)
+   ============================================== */
+
+.identity-content {
+  display: none; /* Hidden by default on desktop */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  overflow: visible;
+}
+
+.identity-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #FFFFFF;
+  letter-spacing: 1px;
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  font-family: 'Orbitron', 'KodeMono', monospace;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.identity-divider {
+  width: 50px;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--brand-primary), 
+    transparent);
+  margin: 8px 0;
+}
+
+.identity-role {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--brand-primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  text-shadow: 0 0 10px var(--brand-primary);
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.identity-sub {
+  font-size: 9px;
+  font-weight: 600;
+  color: #00d4ff;
+  letter-spacing: 1px;
+  opacity: 1;
+  margin-top: 6px;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
+}
+
+/* ==============================================
+   CODE CONTENT (Desktop version)
+   ============================================== */
+
+.code-content {
+  display: flex; /* Visible by default on desktop */
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Code block styling */
+.code-block {
+  font-family: 'Fira Code', 'Consolas', 'Monaco', monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  background: transparent;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: none;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Animated code block */
+.code-block.animated-code {
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Each animated line */
+.code-line-animated {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(10px);
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Animation keyframes - 9s total cycle (3s per line) */
+@keyframes showLine1 {
+  0%, 2% { opacity: 0; transform: translateY(10px); }
+  5%, 30% { opacity: 1; transform: translateY(0); }
+  33%, 100% { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes showLine2 {
+  0%, 33% { opacity: 0; transform: translateY(10px); }
+  36%, 63% { opacity: 1; transform: translateY(0); }
+  66%, 100% { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes showLine3 {
+  0%, 66% { opacity: 0; transform: translateY(10px); }
+  69%, 96% { opacity: 1; transform: translateY(0); }
+  99%, 100% { opacity: 0; transform: translateY(-10px); }
+}
+
+.code-line-animated.line-1 {
+  animation: showLine1 9s ease-in-out infinite;
+}
+
+.code-line-animated.line-2 {
+  animation: showLine2 9s ease-in-out infinite;
+}
+
+.code-line-animated.line-3 {
+  animation: showLine3 9s ease-in-out infinite;
+}
+
+.code-line {
+  display: block;
+  white-space: nowrap;
+}
+
+.code-line.indent {
+  padding-left: 12px;
+}
+
+.code-keyword {
+  color: #ff79c6;
+}
+
+.code-var {
+  color: #50fa7b;
+}
+
+.code-operator {
+  color: #ff79c6;
+}
+
+.code-brace {
+  color: #f1fa8c;
+}
+
+.code-prop {
+  color: #8be9fd;
+}
+
+.code-string {
+  color: #f1fa8c;
+}
+
+.code-bool {
+  color: #bd93f9;
+}
+
+.code-number {
+  color: #bd93f9;
+}
+
+.code-comma,
+.code-semicolon {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Status bar */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  width: 100%;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #50fa7b;
+  border-radius: 50%;
+  animation: statusPulse 2s ease-in-out infinite;
+  box-shadow: 0 0 10px #50fa7b;
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.9); }
+}
+
+.status-text {
+  font-size: 10px;
+  color: var(--brand-primary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Orbiting dots - simple animation */
+.badge-orbit-path {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  animation: orbitRotate 8s linear infinite;
+}
+
+@keyframes orbitRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.badge-orbit-dot {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--brand-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--brand-primary);
+}
+
+.badge-orbit-dot.dot-1 {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.badge-orbit-dot.dot-2 {
+  bottom: 15%;
+  left: 10%;
+}
+
+.badge-orbit-dot.dot-3 {
+  bottom: 15%;
+  right: 10%;
+}
+
+/* Simple scan line */
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent, 
+    var(--brand-primary), 
+    transparent);
+  top: 50%;
+  left: 0;
+  opacity: 0.5;
+  animation: scanMove 4s ease-in-out infinite;
+}
+
+@keyframes scanMove {
+  0%, 100% { 
+    transform: translateY(-50px) scaleX(0.8);
+    opacity: 0.2;
+  }
+  50% { 
+    transform: translateY(50px) scaleX(1);
+    opacity: 0.6;
+  }
+}
+
+/* ==============================================
+   LARGE VERSION
+   ============================================== */
+
+.holo-badge-container.large-version {
+  width: 500px;
+  height: 500px;
+}
+
+.holo-badge-container.large-version .badge-content {
+  padding: 20px;
+  width: 90%;
+}
+
+.holo-badge-container.large-version .code-block {
+  font-size: 13px;
+  padding: 14px 16px;
+  line-height: 1.6;
+}
+
+.holo-badge-container.large-version .code-line.indent {
+  padding-left: 18px;
+}
+
+.holo-badge-container.large-version .status-bar {
+  margin-top: 16px;
+  padding-top: 14px;
+}
+
+.holo-badge-container.large-version .status-dot {
+  width: 10px;
+  height: 10px;
+}
+
+.holo-badge-container.large-version .status-text {
+  font-size: 12px;
+  letter-spacing: 1.5px;
+}
+
+.holo-badge-container.large-version .badge-orbit-dot {
+  width: 8px;
+  height: 8px;
+}
+
+.holo-badge-container.large-version .ring-segment {
+  border-width: 3px;
+}
+
+/* ==============================================
+   RESPONSIVE
+   ============================================== */
+
+@media (max-width: 768px) {
+  .holo-badge-container {
+    width: 240px;
+    height: 240px;
+  }
+  
+  .badge-core {
+    width: 75%;
+    height: 75%;
+  }
+
+  /* SWAP CONTENT: Show identity, hide code on mobile */
+  .identity-content {
+    display: flex !important;
+  }
+  
+  .code-content {
+    display: none !important;
+  }
+
+  /* Identity styling for mobile */
+  .identity-name {
+    font-size: 14px;
+    letter-spacing: 1.5px;
+  }
+
+  .identity-role {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .identity-sub {
+    font-size: 8px;
+  }
+
+  .identity-divider {
+    width: 50px;
+    margin: 8px 0;
+  }
+
+  .code-block {
+    font-size: 9px;
+    padding: 8px;
+  }
+
+  .code-line.indent {
+    padding-left: 12px;
+  }
+
+  .status-text {
+    font-size: 8px;
+  }
+
+  .holo-badge-container.large-version {
+    width: 280px;
+    height: 280px;
+  }
+
+  .holo-badge-container.large-version .identity-name {
+    font-size: 16px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .holo-badge-container.large-version .identity-role {
+    font-size: 11px;
+  }
+
+  .holo-badge-container.large-version .identity-sub {
+    font-size: 9px;
+  }
+
+  .holo-badge-container.large-version .identity-divider {
+    width: 60px;
+    margin: 10px 0;
+  }
+
+  .holo-badge-container.large-version .code-block {
+    font-size: 11px;
+    padding: 12px;
+  }
+
+  .holo-badge-container.large-version .status-text {
+    font-size: 9px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+  .holo-badge-container {
+    width: 210px;
+    height: 210px;
+  }
+  
+  .badge-core {
+    width: 78%;
+    height: 78%;
+  }
+
+  .identity-name {
+    font-size: 12px;
+    letter-spacing: 0.8px;
+  }
+
+  .identity-role {
+    font-size: 9px;
+  }
+
+  .identity-sub {
+    font-size: 7px;
+  }
+
+  .identity-divider {
+    width: 40px;
+  }
+
+  .identity-status .status-text {
+    font-size: 7px;
+  }
+}
+
+/* ==============================================
+   REDUCED MOTION
+   ============================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .outer-ring,
+  .badge-orbit-path,
+  .ring-segment.seg-3,
+  .ring-segment.seg-4 {
+    animation: none;
+  }
+
+  .scan-line {
+    animation: none;
+    opacity: 0.3;
+  }
+
+  .badge-divider {
+    animation: none;
+  }
+}

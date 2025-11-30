@@ -4,11 +4,213 @@
    ============================================== */
 
 /* ==============================================
+   DESKTOP/MOBILE VISIBILITY HELPERS
+   ============================================== */
+
+/* Desktop only elements */
+.desktop-only {
+  display: block;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-only {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+/* ==============================================
+   HOLOGRAPHIC BADGE POSITIONING
+   ============================================== */
+
+/* Desktop: positioned on the right side */
+.holo-badge-wrapper.desktop-only {
+  position: absolute;
+  right: 8%;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+}
+
+/* Mobile: centered above/in the content flow */
+@media (max-width: 768px) {
+  .holo-badge-wrapper.mobile-only {
+    width: 100%;
+    margin: 20px 0;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Optimize holo badge for mobile */
+  .holo-badge-container {
+    width: 240px !important;
+    height: 240px !important;
+  }
+
+  .holo-badge-container .badge-core {
+    width: 75% !important;
+    height: 75% !important;
+  }
+
+  .holo-badge-container .code-block {
+    font-size: 8px !important;
+    padding: 8px !important;
+    line-height: 1.4 !important;
+  }
+
+  .holo-badge-container .code-line.indent {
+    padding-left: 10px !important;
+  }
+
+  .holo-badge-container .status-bar {
+    margin-top: 6px !important;
+    padding-top: 6px !important;
+  }
+
+  .holo-badge-container .status-text {
+    font-size: 7px !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  .holo-badge-container .status-dot {
+    width: 5px !important;
+    height: 5px !important;
+  }
+
+  .holo-badge-container .orbit-dot {
+    width: 4px !important;
+    height: 4px !important;
+  }
+
+  .holo-badge-container .ring-segment {
+    border-width: 1.5px !important;
+  }
+
+  /* Simplify animations on mobile for performance */
+  .holo-badge-container .outer-ring {
+    animation-duration: 30s !important;
+  }
+
+  .holo-badge-container .orbit-path {
+    animation-duration: 12s !important;
+  }
+
+  .holo-badge-container .scan-line {
+    display: none !important;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 380px) {
+  .holo-badge-container {
+    width: 170px !important;
+    height: 170px !important;
+  }
+
+  .holo-badge-container .code-block {
+    font-size: 7px !important;
+    padding: 6px !important;
+  }
+
+  .holo-badge-container .status-text {
+    font-size: 6px !important;
+  }
+}
+
+/* ==============================================
+   CRITICAL PERFORMANCE OPTIMIZATIONS
+   ============================================== */
+
+/* Force GPU acceleration off for complex animations on mobile */
+@media (max-width: 768px) {
+
+  /* Disable heavy backdrop filters that kill mobile performance */
+  .dock-container,
+  .orbit-item,
+  .nav-orbit.expanded .orbit-item {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Simplify backgrounds instead of blur */
+  .dock-container {
+    background: rgba(0, 10, 20, 0.98) !important;
+  }
+
+  .orbit-item,
+  .nav-orbit.expanded .orbit-item {
+    background: rgba(0, 15, 30, 0.98) !important;
+  }
+
+  /* Kill all complex animations - BUT keep holo badge */
+  .neural-ring,
+  .orb-glow,
+  .data-particle,
+  .orbit-trail,
+  .card-glow,
+  .holographic-grid,
+  .cursor-trail,
+  .scanning-line {
+    display: none !important;
+    animation: none !important;
+  }
+
+  /* Disable box-shadow animations - huge perf hit */
+  .ai-orb-logo,
+  .orbit-item,
+  .project-card,
+  .skill-card {
+    animation: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Add simple static shadow instead */
+  .ai-orb-logo {
+    box-shadow: 0 2px 10px rgba(0, 255, 255, 0.2) !important;
+  }
+
+  /* Reduce paint complexity */
+  .holographic-grid {
+    background: none !important;
+    display: none !important;
+  }
+
+  /* Simplify gradients */
+  .dock-container::before,
+  .orb-core::before,
+  .orbit-item::after {
+    display: none !important;
+  }
+
+  /* Disable all glow effects */
+  * {
+    text-shadow: none !important;
+  }
+
+  /* Keep essential text readable */
+  .hero-name,
+  .section-title {
+    text-shadow: 0 0 10px rgba(0, 255, 209, 0.3) !important;
+  }
+}
+
+/* ==============================================
    MOBILE NAVIGATION - AI ORBIT DOCK
    ============================================== */
 
 /* Mobile-first approach for screens 768px and below */
 @media (max-width: 768px) {
+
   /* AI Orbit Navigation - Bottom Center on Mobile */
   .holo-dock {
     position: fixed;
@@ -141,8 +343,10 @@
 @media (max-width: 768px) {
   .hero-container {
     min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
-    padding: 60px 0 120px; /* Extra bottom padding for dock */
+    min-height: 100dvh;
+    /* Dynamic viewport height for mobile browsers */
+    padding: 60px 0 120px;
+    /* Extra bottom padding for dock */
     display: flex;
     align-items: center;
   }
@@ -232,6 +436,133 @@
   .holographic-grid {
     background-size: 30px 30px;
     animation: none;
+  }
+
+  /* Mobile code decoration - animated cycling code snippet */
+  .mobile-code-decoration {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    margin: 15px 0;
+    height: 40px;
+  }
+
+  .mobile-code-lines {
+    position: relative;
+    width: 160px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-code-decoration .code-snippet {
+    position: absolute;
+    font-family: 'Fira Code', 'Monaco', monospace;
+    font-size: 13px;
+    padding: 8px 16px;
+    background: rgba(0, 255, 209, 0.05);
+    border: 1px solid rgba(0, 255, 209, 0.2);
+    border-radius: 20px;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  /* Animation keyframes - 9s total (3s per line) */
+  @keyframes mobileShowLine1 {
+
+    0%,
+    2% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    5%,
+    30% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    33%,
+    100% {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes mobileShowLine2 {
+
+    0%,
+    33% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    36%,
+    63% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    66%,
+    100% {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  @keyframes mobileShowLine3 {
+
+    0%,
+    66% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    69%,
+    96% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    99%,
+    100% {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  .mobile-code-decoration .mobile-line-1 {
+    animation: mobileShowLine1 9s ease-in-out infinite;
+  }
+
+  .mobile-code-decoration .mobile-line-2 {
+    animation: mobileShowLine2 9s ease-in-out infinite;
+  }
+
+  .mobile-code-decoration .mobile-line-3 {
+    animation: mobileShowLine3 9s ease-in-out infinite;
+  }
+
+  .mobile-code-decoration .code-prop {
+    color: #8be9fd;
+  }
+
+  .mobile-code-decoration .code-operator {
+    color: #ff79c6;
+  }
+
+  .mobile-code-decoration .code-string {
+    color: #f1fa8c;
+  }
+
+  .mobile-code-decoration .code-bool {
+    color: #bd93f9;
+  }
+
+  .mobile-code-decoration .code-number {
+    color: #bd93f9;
   }
 }
 
@@ -556,91 +887,147 @@
   }
 
   .category-nav {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
   }
 
   .category-btn {
+    flex: 1 1 auto;
+    /* Allow buttons to grow and shrink appropriately */
+    min-width: 140px;
     padding: 15px;
+    min-height: 60px;
+    /* Better touch target */
+    display: flex;
     flex-direction: column;
-    text-align: center;
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
   }
 
   .category-title {
-    font-size: 12px;
+    font-size: 14px;
+    text-align: center;
+    white-space: normal;
+    /* Allow text to wrap */
+    word-break: break-word;
+    /* Break long words if needed */
+    line-height: 1.3;
+    /* Improve readability */
+    margin-top: 5px;
+    /* Space between icon and text */
   }
 
   .category-icon {
-    width: 24px;
-    height: 24px;
+    margin: 0 auto;
+    /* Center icon */
+    display: block;
   }
 
   .category-arrow {
     display: none;
+    /* Hide arrow on mobile */
   }
 
   .skills-display {
-    border-radius: 12px;
-  }
-
-  .display-header {
-    padding: 15px 20px;
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-
-  .display-title {
-    font-size: 14px;
+    min-height: 400px;
   }
 
   .skills-grid {
+    max-height: calc(400px - 60px);
     padding: 20px;
     gap: 20px;
+    grid-template-columns: 1fr;
+    /* Single column on mobile */
+  }
+
+  .skill-item {
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .skill-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 5px;
+    margin-bottom: 12px;
   }
 
   .skill-name {
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 600;
   }
 
   .skill-level {
-    font-size: 12px;
+    font-size: 14px;
+    font-weight: 700;
   }
 
-  /* System Stats */
+  .skill-progress-container {
+    margin-bottom: 12px;
+  }
+
+  .skill-progress-bg {
+    height: 8px;
+  }
+
+  .hologram-dots {
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .data-bars {
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  /* System Stats - Optimized for Mobile (One Box Horizontal) */
   .system-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-top: 40px;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 8px;
+    gap: 8px;
+    margin-top: 20px;
+    grid-template-columns: none !important;
   }
 
   .stat-item {
+    display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    min-height: auto !important;
+    flex: 1 1 100px;
+    gap: 6px !important;
     text-align: center;
-    padding: 20px 15px;
-    gap: 10px;
+    line-height: 1.2;
+  }
+
+  .stat-icon {
+    width: 20px !important;
+    height: 20px !important;
+    margin-bottom: 12px;
+    border-radius: 12px;
   }
 
   .stat-value {
-    font-size: 20px;
+    font-size: 16px !important;
+    margin-left: 8px;
+    font-weight: 700 !important;
   }
 
   .stat-label {
-    font-size: 11px;
-  }
-
-  /* Additional Stats */
-  .additional-stats-section {
-    margin-top: 30px;
-    border-radius: 12px;
+    margin-left: 8px;
+    font-size: 12px !important;
   }
 
   .stats-header {
@@ -668,22 +1055,114 @@
   }
 }
 
+/* Skills Section - Small Mobile */
+@media (max-width: 480px) {
+  .skills-interface {
+    gap: 20px;
+    margin-top: 30px;
+  }
+
+  .category-nav {
+    gap: 10px;
+  }
+
+  .category-btn {
+    min-width: 110px;
+    padding: 12px 8px;
+    min-height: 55px;
+  }
+
+  .category-title {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .skills-display {
+    min-height: 350px;
+  }
+
+  .skills-grid {
+    max-height: calc(350px - 50px);
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .skill-item {
+    padding: 12px;
+  }
+
+  .display-header {
+    padding: 15px 20px;
+  }
+
+  .display-title {
+    font-size: 16px;
+  }
+
+  .skill-name {
+    font-size: 14px;
+  }
+
+  .skill-level {
+    font-size: 12px;
+  }
+
+  .system-stats {
+    /* Already handled in main mobile query, just ensuring it stays row */
+    flex-direction: row !important;
+    padding: 12px 5px;
+  }
+
+  .stat-item {
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+
+  .stat-icon {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .stat-value {
+    font-size: 14px !important;
+  }
+}
+
 /* ==============================================
    MOBILE CONTACT SECTION
    ============================================== */
 @media (max-width: 768px) {
   .contact-section {
-    padding: 80px 0 120px; /* Extra padding for bottom dock */
+    padding: 80px 0 120px;
+    /* Extra padding for bottom dock */
   }
 
   .contact-container {
     padding: 0 20px;
   }
 
+  .connection-status {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    font-size: 11px;
+  }
+
+  .status-indicator,
+  .encryption-level {
+    gap: 5px;
+  }
+
+  .status-icon,
+  .encryption-icon {
+    width: 12px;
+    height: 12px;
+  }
+
   .contact-grid {
     grid-template-columns: 1fr;
     gap: 30px;
-    margin-top: 40px;
+    margin-top: 30px;
   }
 
   .contact-form {
@@ -748,14 +1227,141 @@
     margin-top: 30px;
   }
 
-  .social-link {
+  .social-links .social-link {
     width: 45px;
     height: 45px;
   }
 
-  .social-icon {
+  .social-links .social-icon {
     width: 20px;
     height: 20px;
+  }
+
+  /* Social Networks - Mobile */
+  .social-networks {
+    margin-top: 25px;
+  }
+
+  .networks-header {
+    padding: 20px;
+  }
+
+  .networks-title {
+    font-size: 14px;
+  }
+
+  .networks-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+  }
+
+  .networks-grid .social-link {
+    padding: 20px 15px;
+    gap: 6px;
+    border-right: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    width: auto;
+    height: auto;
+  }
+
+  .networks-grid .social-link:nth-child(2n) {
+    border-right: none;
+  }
+
+  .networks-grid .social-link:nth-child(n+3) {
+    border-bottom: none;
+  }
+
+  .networks-grid .social-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Social Networks - Small Mobile */
+  .networks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .networks-grid .social-link {
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 25px 20px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 15px;
+  }
+
+  .networks-grid .social-link:last-child {
+    border-bottom: none;
+  }
+
+  @media (max-width: 480px) {
+    .networks-grid .social-link {
+      padding: 20px 15px;
+      gap: 12px;
+    }
+
+    .social-icon {
+      width: 22px;
+      height: 22px;
+    }
+
+    .social-label {
+      font-size: 13px;
+    }
+  }
+
+  /* Resume Download Button - Mobile */
+  .resume-download {
+    margin: 25px 0;
+  }
+
+  .download-btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 14px;
+    justify-content: center;
+  }
+
+  .download-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Contact Section - Small Mobile */
+@media (max-width: 480px) {
+  .connection-status {
+    gap: 8px;
+    margin-top: 12px;
+    font-size: 10px;
+  }
+
+  .status-icon,
+  .encryption-icon {
+    width: 10px;
+    height: 10px;
+  }
+
+  .contact-grid {
+    gap: 25px;
+    margin-top: 25px;
+  }
+
+  .contact-form {
+    padding: 20px 15px;
+  }
+
+  .form-header {
+    padding: 20px 15px;
+  }
+
+  .form-title {
+    font-size: 16px;
+  }
+
+  .form-status {
+    font-size: 12px;
   }
 }
 
@@ -764,7 +1370,8 @@
    ============================================== */
 @media (max-width: 768px) {
   .main-footer {
-    padding: 40px 0 100px; /* Extra padding for bottom dock */
+    padding: 40px 0 100px;
+    /* Extra padding for bottom dock */
   }
 
   .footer-container {
@@ -815,6 +1422,7 @@
    SMALL MOBILE DEVICES (480px and below)
    ============================================== */
 @media (max-width: 480px) {
+
   /* Navigation adjustments */
   .holo-dock {
     bottom: 15px !important;
@@ -909,12 +1517,31 @@
   .project-description {
     font-size: 13px;
   }
+
+  /* Social Networks - Small Mobile */
+  .networks-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .networks-grid .social-link {
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .networks-grid .social-link:last-child {
+    border-bottom: none;
+  }
+
+  .social-label {
+    font-size: 13px;
+  }
 }
 
 /* ==============================================
    TOUCH & INTERACTION OPTIMIZATIONS
    ============================================== */
 @media (max-width: 768px) {
+
   /* Improve touch targets */
   .orbit-item,
   .btn-primary,
@@ -958,13 +1585,27 @@
 
   /* Reduce animation complexity */
   @keyframes neural-pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
+
+    0%,
+    100% {
+      opacity: 0.6;
+    }
+
+    50% {
+      opacity: 1;
+    }
   }
 
   @keyframes orb-breathe {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
   }
 
   /* Smooth scrolling */
