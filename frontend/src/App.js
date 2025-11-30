@@ -6,58 +6,116 @@ import About from './components/About';
 import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Contact from './components/Contact';
+import TerminalOverlay from './components/TerminalOverlay';
+import VoiceSynthesis from './components/VoiceSynthesis';
+import CyberSounds from './components/CyberSounds';
+import TerminalBackground from './components/TerminalBackground';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 const API = `${BACKEND_URL}/api`;
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [showTerminal, setShowTerminal] = useState(false);
 
   // Initialize system
   useEffect(() => {
     const initializeSystem = async () => {
       try {
-        // Test backend connection
-        const response = await axios.get(`${API}/`);
+        // Test backend connection (optional - won't fail if backend is down)
+        const response = await axios.get(`${API}/`, { timeout: 2000 });
         console.log('System initialized:', response.data.message);
       } catch (e) {
-        console.error('System initialization failed:', e);
+        console.log('Backend not available - proceeding with frontend only');
       } finally {
+        // Show terminal overlay first
+        setShowTerminal(true);
         // Simulate loading sequence
-        setTimeout(() => setIsLoading(false), 2000);
+        setTimeout(() => setIsLoading(false), 4000);
       }
     };
 
     initializeSystem();
   }, []);
 
-  const LoadingScreen = () => (
-    <div className="loading-screen">
-      <div className="loading-container">
-        <div className="loading-logo">
-          <div className="logo-grid">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className="logo-cell" style={{ '--delay': `${i * 100}ms` }}></div>
-            ))}
+  const LoadingScreen = () => {
+    const [currentLine, setCurrentLine] = useState(0);
+    const [showVoiceText, setShowVoiceText] = useState(false);
+
+    useEffect(() => {
+      const lines = [
+        "Initializing quantum processors...",
+        "Establishing neural pathways...",
+        "Calibrating holographic interface...",
+        "Loading cybernetic protocols...",
+        "System ready for deployment"
+      ];
+
+      if (currentLine < lines.length) {
+        const timer = setTimeout(() => {
+          setCurrentLine(prev => prev + 1);
+        }, 800);
+        return () => clearTimeout(timer);
+      } else {
+        // Show voice activation text
+        setTimeout(() => setShowVoiceText(true), 500);
+      }
+    }, [currentLine]);
+
+    const lines = [
+      "Initializing quantum processors...",
+      "Establishing neural pathways...",
+      "Calibrating holographic interface...",
+      "Loading cybernetic protocols...",
+      "System ready for deployment"
+    ];
+
+    return (
+      <div className="loading-screen">
+        <div className="loading-container">
+          <div className="loading-logo">
+            <div className="logo-grid">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className="logo-cell" style={{ '--delay': `${i * 100}ms` }}></div>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="loading-text">
-          <span className="loading-label">Initializing Neural Network...</span>
-          <div className="loading-bar">
-            <div className="loading-progress"></div>
+          <div className="loading-text">
+            <span className="loading-label">
+              {showVoiceText ? "AI Voice Activation..." : "Initializing Neural Network..."}
+            </span>
+            <div className="loading-bar">
+              <div className="loading-progress"></div>
+            </div>
           </div>
-        </div>
-        <div className="loading-status">
-          <div className="status-lines">
-            <div className="status-line">{'>'} Loading quantum processors... OK</div>
-            <div className="status-line">{'>'} Establishing neural pathways... OK</div>
-            <div className="status-line">{'>'} Calibrating holographic interface... OK</div>
-            <div className="status-line">{'>'} System ready for deployment</div>
+          <div className="loading-status">
+            <div className="status-lines">
+              {lines.map((line, index) => (
+                <div
+                  key={index}
+                  className={`status-line ${index < currentLine ? 'visible' : ''}`}
+                  style={{ animationDelay: `${index * 0.2}s` }}
+                >
+                  {'>'} {line} {index < currentLine - 1 ? 'OK' : index === currentLine - 1 ? '...' : ''}
+                </div>
+              ))}
+            </div>
           </div>
+
+          {showVoiceText && (
+            <div className="voice-activation">
+              <div className="voice-indicator">
+                <div className="voice-wave"></div>
+                <div className="voice-wave"></div>
+                <div className="voice-wave"></div>
+              </div>
+              <span className="voice-text">Listening for commands...</span>
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const Portfolio = () => {
     const [menuExpanded, setMenuExpanded] = useState(false);
@@ -231,8 +289,18 @@ const App = () => {
     );
   };
 
+  const handleTerminalComplete = () => {
+    setShowTerminal(false);
+  };
+
   return (
     <div className="App">
+      {/* Full-Screen Terminal Background for Entire Portfolio */}
+      <TerminalBackground
+        opacity={0.08}
+        speed={0.1}
+      />
+
       {isLoading ? (
         <LoadingScreen />
       ) : (
@@ -242,6 +310,42 @@ const App = () => {
           </Routes>
         </BrowserRouter>
       )}
+
+      {/* Terminal Overlay */}
+      <TerminalOverlay
+        isVisible={showTerminal}
+        autoStart={true}
+        onComplete={handleTerminalComplete}
+      />
+
+      {/* AI Voice Synthesis */}
+      <VoiceSynthesis
+        text="Welcome to Arun Kumar L's cybernetic portfolio. Neural networks initialized. System ready for interaction."
+        autoPlay={!isLoading && !showTerminal}
+        voice="female"
+        rate={0.9}
+        pitch={1.1}
+        volume={0.7}
+      />
+
+      {/* Enhanced Loading Voice */}
+      {isLoading && (
+        <VoiceSynthesis
+          text="Initializing system boot sequence. Loading neural pathways. Preparing holographic interface. Welcome to the cybernetic realm."
+          autoPlay={true}
+          voice="female"
+          rate={0.8}
+          pitch={1.2}
+          volume={0.6}
+        />
+      )}
+
+      {/* Cyberpunk Sound Effects */}
+      <CyberSounds
+        enableAmbient={true}
+        enableInteractions={true}
+        volume={0.2}
+      />
     </div>
   );
 };

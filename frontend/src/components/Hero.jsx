@@ -1,7 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { portfolioData } from '../data/mock';
-import Spline from '@splinetool/react-spline';
 import { ArrowDown, Terminal, Cpu, Zap } from 'lucide-react';
+import FloatingCube from './FloatingCube';
+import MatrixRain from './MatrixRain';
+import ParticleSystem from './ParticleSystem';
+import HolographicDataStream from './HolographicDataStream';
+import RoboticArm from './RoboticArm';
+import TerminalBackground from './TerminalBackground';
 
 const Hero = () => {
   const [displayText, setDisplayText] = useState('');
@@ -71,10 +76,10 @@ const Hero = () => {
     <div ref={heroRef} className="hero-container">
       {/* Background Grid */}
       <div className="holographic-grid"></div>
-      
-      {/* 3D Spline Animation */}
-      <div className="spline-container">
-        <Spline scene="https://prod.spline.design/NbVmy6DPLhY-5Lvg/scene.splinecode" />
+
+      {/* Large 3D Floating Cube */}
+      <div className="large-cube-container">
+        <FloatingCube isLarge={true} />
       </div>
 
       {/* Main Content */}
@@ -86,6 +91,7 @@ const Hero = () => {
             <span className="terminal-path">~/portfolio/init</span>
           </div>
 
+         
           {/* Name Display */}
           <div className="name-container">
             <h1 className="hero-name">

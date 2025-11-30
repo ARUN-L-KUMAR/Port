@@ -1,0 +1,58 @@
+/* Matrix Rain CSS */
+.matrix-rain-canvas {
+  filter: blur(0.5px);
+  mix-blend-mode: screen;
+}
+
+.matrix-rain-canvas:hover {
+  opacity: 0.8;
+}
+
+/* 3D Matrix Effect Enhancement */
+.matrix-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.matrix-3d .matrix-rain-canvas {
+  transform: rotateX(10deg) rotateY(-5deg);
+  transform-origin: center center;
+}
+
+/* Interactive Matrix */
+.interactive-matrix {
+  cursor: crosshair;
+}
+
+.interactive-matrix:hover .matrix-rain-canvas {
+  filter: blur(0.3px) brightness(1.2);
+}
+
+/* Matrix Rain Variations */
+.matrix-rain-red {
+  filter: hue-rotate(0deg) saturate(2);
+}
+
+.matrix-rain-blue {
+  filter: hue-rotate(180deg) saturate(2);
+}
+
+.matrix-rain-purple {
+  filter: hue-rotate(270deg) saturate(2);
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+  .matrix-rain-canvas {
+    animation: none;
+    opacity: 0.3;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .matrix-rain-canvas {
+    opacity: 0.4;
+    filter: blur(1px);
+  }
+}
