@@ -250,7 +250,6 @@ body {
   align-items: center;
   justify-content: center;
   padding: 15px 25px;
-  background: rgba(0, 10, 20, 0.15);
   backdrop-filter: blur(20px);
   border-radius: 50px;
   box-shadow:
@@ -294,6 +293,7 @@ body {
   border: none;
   padding: 0;
   outline: none;
+  border-radius: 50%;
   animation: quantum-pulse 3s ease-in-out infinite;
 }
 

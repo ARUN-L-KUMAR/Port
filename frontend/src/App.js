@@ -5,6 +5,7 @@ import About from './components/About';
 import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Contact from './components/Contact';
+import './components/MobileStyles.css'; // Mobile-optimized styles
 
 // Lazy load heavy components to improve initial load
 const TerminalOverlay = lazy(() => import('./components/TerminalOverlay'));

@@ -1,0 +1,1087 @@
+/* ==============================================
+   COMPREHENSIVE MOBILE STYLES
+   Cyber-Style Portfolio - Mobile Optimization
+   ============================================== */
+
+/* ==============================================
+   MOBILE NAVIGATION - AI ORBIT DOCK
+   ============================================== */
+
+/* Mobile-first approach for screens 768px and below */
+@media (max-width: 768px) {
+  /* AI Orbit Navigation - Bottom Center on Mobile */
+  .holo-dock {
+    position: fixed;
+    top: auto !important;
+    bottom: 20px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999;
+  }
+
+  .holo-dock.minimized {
+    bottom: 15px !important;
+    transform: translateX(-50%) scale(0.85) !important;
+  }
+
+  .dock-container {
+    padding: 12px 20px;
+    border-radius: 50px;
+    background: rgba(0, 10, 20, 0.95);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow:
+      0 10px 40px rgba(0, 255, 255, 0.2),
+      0 5px 20px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+
+  .ai-orb-logo {
+    width: 55px;
+    height: 55px;
+    margin: 0 15px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ai-center {
+    font-size: 11px;
+    letter-spacing: 0.3px;
+  }
+
+  /* Orbit menu expands upward on mobile */
+  .nav-orbit {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    top: auto;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 200px;
+    margin-bottom: 15px;
+  }
+
+  .nav-orbit.expanded {
+    width: 300px;
+    height: 220px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Semi-circular layout above the orb */
+  .nav-orbit.expanded .orbit-item {
+    width: 48px;
+    height: 48px;
+    background: rgba(0, 20, 40, 0.95);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+
+  /* Arc positions - spread above the dock */
+  .nav-orbit.expanded .orbit-item:nth-child(1) {
+    bottom: 0;
+    left: 0;
+    top: auto;
+    transform: translate(0, 0);
+  }
+
+  .nav-orbit.expanded .orbit-item:nth-child(2) {
+    bottom: 40%;
+    left: 10%;
+    top: auto;
+    transform: translate(0, 50%);
+  }
+
+  .nav-orbit.expanded .orbit-item:nth-child(3) {
+    bottom: 70%;
+    left: 50%;
+    top: auto;
+    transform: translate(-50%, 50%);
+  }
+
+  .nav-orbit.expanded .orbit-item:nth-child(4) {
+    bottom: 40%;
+    right: 10%;
+    left: auto;
+    top: auto;
+    transform: translate(0, 50%);
+  }
+
+  .nav-orbit.expanded .orbit-item:nth-child(5) {
+    bottom: 0;
+    right: 0;
+    left: auto;
+    top: auto;
+    transform: translate(0, 0);
+  }
+
+  .orbit-icon {
+    font-size: 20px;
+  }
+
+  /* Labels appear on tap/hover */
+  .orbit-item::before {
+    bottom: -28px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.95);
+  }
+
+  /* Remove orbital arc guide on mobile */
+  .nav-orbit.expanded::before {
+    display: none;
+  }
+}
+
+/* ==============================================
+   MOBILE HERO SECTION
+   ============================================== */
+@media (max-width: 768px) {
+  .hero-container {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    padding: 60px 0 120px; /* Extra bottom padding for dock */
+    display: flex;
+    align-items: center;
+  }
+
+  .hero-content {
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .hero-left {
+    max-width: 100%;
+  }
+
+  /* Hide large cube on mobile */
+  .large-cube-container {
+    display: none;
+  }
+
+  .terminal-header {
+    justify-content: center;
+    margin-bottom: 20px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+
+  .hero-name {
+    font-size: 36px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+
+  .role-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .role-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+    margin-bottom: 12px;
+  }
+
+  .hero-subtitle {
+    font-size: 18px;
+    line-height: 1.3;
+  }
+
+  .hero-tagline {
+    font-size: 14px;
+    margin: 20px 0 30px;
+    padding: 0 10px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 20px;
+    font-size: 15px;
+    min-height: 50px;
+  }
+
+  .status-indicators {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .status-item {
+    font-size: 13px;
+  }
+
+  /* Hide floating cubes on mobile */
+  .floating-elements {
+    display: none;
+  }
+
+  /* Reduce grid animation on mobile for performance */
+  .holographic-grid {
+    background-size: 30px 30px;
+    animation: none;
+  }
+}
+
+/* ==============================================
+   MOBILE ABOUT SECTION
+   ============================================== */
+@media (max-width: 768px) {
+  .about-section {
+    padding: 80px 0 100px;
+  }
+
+  .about-container {
+    padding: 0 20px;
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 40px;
+  }
+
+  .section-header {
+    margin-bottom: 40px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+    padding: 0 10px;
+  }
+
+  .bio-section {
+    border-radius: 12px;
+  }
+
+  .bio-header {
+    padding: 20px;
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+
+  .bio-title {
+    font-size: 18px;
+  }
+
+  /* Tab buttons for mobile */
+  .tab-buttons {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 5px;
+    gap: 5px;
+  }
+
+  .tab-buttons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-btn {
+    min-width: 70px;
+    padding: 10px 8px;
+    flex-shrink: 0;
+  }
+
+  .tab-btn span {
+    font-size: 10px;
+  }
+
+  .tab-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .tab-content {
+    padding: 20px 15px;
+    min-height: 300px;
+  }
+
+  /* Education Card Mobile */
+  .education-card {
+    padding: 20px;
+    border-radius: 12px;
+    margin-top: 20px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+  }
+
+  .degree-badge {
+    padding: 10px 16px;
+  }
+
+  .degree-level {
+    font-size: 12px;
+  }
+
+  .degree-title {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .info-item {
+    padding: 12px 15px;
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .info-text {
+    font-size: 14px;
+  }
+
+  /* Personal Info Grid Mobile */
+  .personal-info-grid {
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+    gap: 8px;
+  }
+
+  .info-label {
+    min-width: auto;
+    font-size: 12px;
+  }
+
+  .info-value,
+  .info-link {
+    font-size: 14px;
+  }
+}
+
+/* ==============================================
+   MOBILE PROJECTS SECTION
+   ============================================== */
+@media (max-width: 768px) {
+  .projects-section {
+    padding: 80px 0 100px;
+  }
+
+  .projects-container {
+    padding: 0 20px;
+  }
+
+  /* Filter bar mobile */
+  .projects-filter-bar {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .filter-tabs {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 5px;
+    flex-wrap: nowrap;
+  }
+
+  .filter-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .filter-search {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .filter-search-input {
+    width: 100%;
+    min-width: auto;
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+
+  /* Project Cards Grid */
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    margin-bottom: 40px;
+  }
+
+  .project-card {
+    border-radius: 12px;
+  }
+
+  .project-image-container {
+    height: 180px;
+  }
+
+  .project-content {
+    padding: 20px;
+  }
+
+  .project-title {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .project-description {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 15px;
+  }
+
+  .project-technologies {
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .tech-tag {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+
+  .project-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .action-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+  }
+
+  .project-status {
+    top: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    font-size: 10px;
+  }
+
+  /* Internship Cards */
+  .projects-toggle-header {
+    padding: 12px 15px;
+    border-radius: 10px;
+  }
+
+  .project-item-expanded {
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .project-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .project-title-expanded {
+    font-size: 16px;
+  }
+
+  .project-status-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .project-description-expanded {
+    font-size: 13px;
+  }
+
+  .project-technologies-expanded {
+    gap: 5px;
+  }
+
+  .tech-tag-expanded {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+
+  .project-actions-expanded {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .project-demo-btn,
+  .project-github-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}
+
+/* ==============================================
+   MOBILE SKILLS SECTION
+   ============================================== */
+@media (max-width: 768px) {
+  .skills-section {
+    padding: 80px 0 100px;
+  }
+
+  .skills-container {
+    padding: 0 20px;
+  }
+
+  .skills-interface {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 40px;
+  }
+
+  .category-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .category-btn {
+    padding: 15px;
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .category-title {
+    font-size: 12px;
+  }
+
+  .category-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .category-arrow {
+    display: none;
+  }
+
+  .skills-display {
+    border-radius: 12px;
+  }
+
+  .display-header {
+    padding: 15px 20px;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .display-title {
+    font-size: 14px;
+  }
+
+  .skills-grid {
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .skill-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .skill-name {
+    font-size: 14px;
+  }
+
+  .skill-level {
+    font-size: 12px;
+  }
+
+  /* System Stats */
+  .system-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 40px;
+  }
+
+  .stat-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px 15px;
+    gap: 10px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  /* Additional Stats */
+  .additional-stats-section {
+    margin-top: 30px;
+    border-radius: 12px;
+  }
+
+  .stats-header {
+    padding: 15px 20px;
+  }
+
+  .stats-title {
+    font-size: 14px;
+  }
+
+  .additional-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .additional-stat-card {
+    padding: 15px;
+  }
+
+  .additional-stat-card .stat-value {
+    font-size: 18px;
+  }
+
+  .additional-stat-card .stat-label {
+    font-size: 10px;
+  }
+}
+
+/* ==============================================
+   MOBILE CONTACT SECTION
+   ============================================== */
+@media (max-width: 768px) {
+  .contact-section {
+    padding: 80px 0 120px; /* Extra padding for bottom dock */
+  }
+
+  .contact-container {
+    padding: 0 20px;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 40px;
+  }
+
+  .contact-form {
+    padding: 25px 20px;
+    border-radius: 12px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+
+  .form-input,
+  .form-textarea {
+    padding: 12px 15px;
+    font-size: 14px;
+    border-radius: 8px;
+  }
+
+  .form-textarea {
+    min-height: 120px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 14px;
+  }
+
+  /* Contact Info Cards */
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .contact-info-card {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .contact-info-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .contact-info-title {
+    font-size: 14px;
+  }
+
+  .contact-info-value {
+    font-size: 12px;
+  }
+
+  /* Social Links */
+  .social-links {
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .social-link {
+    width: 45px;
+    height: 45px;
+  }
+
+  .social-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* ==============================================
+   MOBILE FOOTER
+   ============================================== */
+@media (max-width: 768px) {
+  .main-footer {
+    padding: 40px 0 100px; /* Extra padding for bottom dock */
+  }
+
+  .footer-container {
+    padding: 0 20px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    font-size: 12px;
+  }
+
+  .footer-status {
+    justify-content: center;
+  }
+}
+
+/* ==============================================
+   MOBILE LOADING SCREEN
+   ============================================== */
+@media (max-width: 768px) {
+  .loading-container {
+    max-width: 280px;
+    padding: 0 20px;
+  }
+
+  .logo-grid {
+    width: 60px;
+    height: 60px;
+    gap: 6px;
+  }
+
+  .loading-label {
+    font-size: 12px;
+  }
+
+  .status-lines {
+    font-size: 10px;
+  }
+
+  .status-line {
+    margin-bottom: 4px;
+  }
+}
+
+/* ==============================================
+   SMALL MOBILE DEVICES (480px and below)
+   ============================================== */
+@media (max-width: 480px) {
+  /* Navigation adjustments */
+  .holo-dock {
+    bottom: 15px !important;
+  }
+
+  .dock-container {
+    padding: 10px 15px;
+  }
+
+  .ai-orb-logo {
+    width: 50px;
+    height: 50px;
+    margin: 0 12px;
+  }
+
+  .ai-center {
+    font-size: 10px;
+  }
+
+  .nav-orbit.expanded {
+    width: 260px;
+    height: 180px;
+  }
+
+  .nav-orbit.expanded .orbit-item {
+    width: 42px;
+    height: 42px;
+  }
+
+  .orbit-icon {
+    font-size: 18px;
+  }
+
+  /* Hero adjustments */
+  .hero-name {
+    font-size: 28px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .hero-tagline {
+    font-size: 13px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    font-size: 14px;
+    padding: 12px 18px;
+    min-height: 46px;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 24px;
+  }
+
+  .section-subtitle {
+    font-size: 13px;
+  }
+
+  /* Skills category nav */
+  .category-nav {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .category-btn {
+    flex-direction: row;
+    padding: 12px 15px;
+  }
+
+  /* System stats */
+  .system-stats {
+    grid-template-columns: 1fr;
+  }
+
+  /* Project cards */
+  .project-image-container {
+    height: 150px;
+  }
+
+  .project-content {
+    padding: 15px;
+  }
+
+  .project-title {
+    font-size: 16px;
+  }
+
+  .project-description {
+    font-size: 13px;
+  }
+}
+
+/* ==============================================
+   TOUCH & INTERACTION OPTIMIZATIONS
+   ============================================== */
+@media (max-width: 768px) {
+  /* Improve touch targets */
+  .orbit-item,
+  .btn-primary,
+  .btn-secondary,
+  .action-btn,
+  .filter-btn,
+  .category-btn,
+  .tab-btn,
+  .social-link {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects that don't work well on touch */
+  .project-card:hover {
+    transform: none;
+  }
+
+  .project-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  .orbit-item:hover {
+    transform: none;
+  }
+
+  .orbit-item:active {
+    transform: scale(0.95);
+    background: rgba(0, 255, 255, 0.3);
+  }
+
+  /* Disable complex animations for performance */
+  .cursor-trail {
+    display: none;
+  }
+
+  .scanning-line {
+    display: none;
+  }
+
+  /* Reduce animation complexity */
+  @keyframes neural-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes orb-breathe {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Prevent text selection on interactive elements */
+  .ai-orb-logo,
+  .orbit-item,
+  .btn-primary,
+  .btn-secondary,
+  .action-btn {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* ==============================================
+   LANDSCAPE MOBILE ORIENTATION
+   ============================================== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero-container {
+    min-height: auto;
+    padding: 40px 0 80px;
+  }
+
+  .hero-name {
+    font-size: 32px;
+  }
+
+  .hero-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .holo-dock {
+    bottom: 10px !important;
+  }
+
+  .nav-orbit.expanded {
+    height: 160px;
+  }
+}
+
+/* ==============================================
+   SAFE AREA INSETS (Notch devices)
+   ============================================== */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .holo-dock {
+      bottom: calc(15px + env(safe-area-inset-bottom)) !important;
+    }
+
+    .main-footer {
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .contact-section {
+      padding-bottom: calc(100px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ==============================================
+   HIGH CONTRAST MODE
+   ============================================== */
+@media (max-width: 768px) and (prefers-contrast: high) {
+  .dock-container {
+    background: rgba(0, 0, 0, 0.98);
+    border: 2px solid var(--brand-primary);
+  }
+
+  .orbit-item {
+    border-width: 2px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    border-width: 2px;
+  }
+}
+
+/* ==============================================
+   REDUCED MOTION PREFERENCE
+   ============================================== */
+@media (max-width: 768px) and (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .nav-orbit.expanded {
+    transition: opacity 0.1s ease;
+  }
+
+  .orbit-item {
+    transition: none;
+  }
+}
+
+/* ==============================================
+   DARK MODE ADJUSTMENTS (if system prefers)
+   ============================================== */
+@media (max-width: 768px) and (prefers-color-scheme: dark) {
+  .dock-container {
+    background: rgba(0, 5, 15, 0.98);
+  }
+
+  .orbit-item {
+    background: rgba(0, 15, 30, 0.98);
+  }
+}
