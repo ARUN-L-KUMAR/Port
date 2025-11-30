@@ -1,74 +1,61 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Contact from './components/Contact';
-import TerminalOverlay from './components/TerminalOverlay';
-import VoiceSynthesis from './components/VoiceSynthesis';
-import CyberSounds from './components/CyberSounds';
-import TerminalBackground from './components/TerminalBackground';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
-const API = `${BACKEND_URL}/api`;
+// Lazy load heavy components to improve initial load
+const TerminalOverlay = lazy(() => import('./components/TerminalOverlay'));
+const TerminalBackground = lazy(() => import('./components/TerminalBackground'));
+
+// Detect if user prefers reduced motion or is on mobile
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isSlowConnection = navigator.connection?.effectiveType === '2g' || navigator.connection?.effectiveType === 'slow-2g';
+
+// Skip heavy animations on mobile/slow devices
+const shouldSkipAnimations = prefersReducedMotion || isMobile || isSlowConnection;
 
 const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!shouldSkipAnimations);
   const [showTerminal, setShowTerminal] = useState(false);
+  const [enableEffects, setEnableEffects] = useState(!shouldSkipAnimations);
 
-  // Initialize system
+  // Fast initialization - no backend dependency
   useEffect(() => {
-    const initializeSystem = async () => {
-      try {
-        // Test backend connection (optional - won't fail if backend is down)
-        const response = await axios.get(`${API}/`, { timeout: 2000 });
-        console.log('System initialized:', response.data.message);
-      } catch (e) {
-        console.log('Backend not available - proceeding with frontend only');
-      } finally {
-        // Show terminal overlay first
-        setShowTerminal(true);
-        // Simulate loading sequence
-        setTimeout(() => setIsLoading(false), 4000);
-      }
-    };
+    if (shouldSkipAnimations) {
+      // Skip loading for mobile/slow devices - show content immediately
+      setIsLoading(false);
+      setShowTerminal(false);
+      return;
+    }
 
-    initializeSystem();
+    // Quick loading sequence for desktop
+    setShowTerminal(true);
+    const timer = setTimeout(() => setIsLoading(false), 1500); // Reduced from 4000ms to 1500ms
+    
+    return () => clearTimeout(timer);
   }, []);
 
   const LoadingScreen = () => {
     const [currentLine, setCurrentLine] = useState(0);
-    const [showVoiceText, setShowVoiceText] = useState(false);
+
+    const lines = [
+      "Initializing system...",
+      "Loading interface...",
+      "System ready"
+    ];
 
     useEffect(() => {
-      const lines = [
-        "Initializing quantum processors...",
-        "Establishing neural pathways...",
-        "Calibrating holographic interface...",
-        "Loading cybernetic protocols...",
-        "System ready for deployment"
-      ];
-
       if (currentLine < lines.length) {
         const timer = setTimeout(() => {
           setCurrentLine(prev => prev + 1);
-        }, 800);
+        }, 300); // Faster - 300ms instead of 800ms
         return () => clearTimeout(timer);
-      } else {
-        // Show voice activation text
-        setTimeout(() => setShowVoiceText(true), 500);
       }
-    }, [currentLine]);
-
-    const lines = [
-      "Initializing quantum processors...",
-      "Establishing neural pathways...",
-      "Calibrating holographic interface...",
-      "Loading cybernetic protocols...",
-      "System ready for deployment"
-    ];
+    }, [currentLine, lines.length]);
 
     return (
       <div className="loading-screen">
@@ -76,14 +63,12 @@ const App = () => {
           <div className="loading-logo">
             <div className="logo-grid">
               {[...Array(9)].map((_, i) => (
-                <div key={i} className="logo-cell" style={{ '--delay': `${i * 100}ms` }}></div>
+                <div key={i} className="logo-cell" style={{ '--delay': `${i * 50}ms` }}></div>
               ))}
             </div>
           </div>
           <div className="loading-text">
-            <span className="loading-label">
-              {showVoiceText ? "AI Voice Activation..." : "Initializing Neural Network..."}
-            </span>
+            <span className="loading-label">Loading...</span>
             <div className="loading-bar">
               <div className="loading-progress"></div>
             </div>
@@ -94,24 +79,12 @@ const App = () => {
                 <div
                   key={index}
                   className={`status-line ${index < currentLine ? 'visible' : ''}`}
-                  style={{ animationDelay: `${index * 0.2}s` }}
                 >
-                  {'>'} {line} {index < currentLine - 1 ? 'OK' : index === currentLine - 1 ? '...' : ''}
+                  {'>'} {line} {index < currentLine ? 'OK' : ''}
                 </div>
               ))}
             </div>
           </div>
-
-          {showVoiceText && (
-            <div className="voice-activation">
-              <div className="voice-indicator">
-                <div className="voice-wave"></div>
-                <div className="voice-wave"></div>
-                <div className="voice-wave"></div>
-              </div>
-              <span className="voice-text">Listening for commands...</span>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -277,7 +250,7 @@ const App = () => {
             ))}
           </div>
           <div className="footer-content">
-            <p>&copy; 2024 Alex Cyber. All systems operational.</p>
+            <p>&copy; 2024 Arun Kumar L. All systems operational.</p>
             <div className="footer-status">
               <span>Status: Online</span>
               <div className="status-indicator active"></div>
@@ -295,11 +268,15 @@ const App = () => {
 
   return (
     <div className="App">
-      {/* Full-Screen Terminal Background for Entire Portfolio */}
-      <TerminalBackground
-        opacity={0.08}
-        speed={0.1}
-      />
+      {/* Terminal Background - only on desktop with effects enabled */}
+      {enableEffects && (
+        <Suspense fallback={null}>
+          <TerminalBackground
+            opacity={0.05}
+            speed={0.05}
+          />
+        </Suspense>
+      )}
 
       {isLoading ? (
         <LoadingScreen />
@@ -311,41 +288,18 @@ const App = () => {
         </BrowserRouter>
       )}
 
-      {/* Terminal Overlay */}
-      <TerminalOverlay
-        isVisible={showTerminal}
-        autoStart={true}
-        onComplete={handleTerminalComplete}
-      />
-
-      {/* AI Voice Synthesis */}
-      <VoiceSynthesis
-        text="Welcome to Arun Kumar L's cybernetic portfolio. Neural networks initialized. System ready for interaction."
-        autoPlay={!isLoading && !showTerminal}
-        voice="female"
-        rate={0.9}
-        pitch={1.1}
-        volume={0.7}
-      />
-
-      {/* Enhanced Loading Voice */}
-      {isLoading && (
-        <VoiceSynthesis
-          text="Initializing system boot sequence. Loading neural pathways. Preparing holographic interface. Welcome to the cybernetic realm."
-          autoPlay={true}
-          voice="female"
-          rate={0.8}
-          pitch={1.2}
-          volume={0.6}
-        />
+      {/* Terminal Overlay - only on desktop */}
+      {enableEffects && showTerminal && (
+        <Suspense fallback={null}>
+          <TerminalOverlay
+            isVisible={showTerminal}
+            autoStart={true}
+            onComplete={handleTerminalComplete}
+          />
+        </Suspense>
       )}
 
-      {/* Cyberpunk Sound Effects */}
-      <CyberSounds
-        enableAmbient={true}
-        enableInteractions={true}
-        volume={0.2}
-      />
+      {/* Voice and Sound effects removed for performance */}
     </div>
   );
 };

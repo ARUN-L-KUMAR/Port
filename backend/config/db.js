@@ -3,45 +3,69 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
-const mongoUrl = process.env.MONGO_URL;
-const dbName = process.env.DB_NAME;
+const mongoUrl = process.env.MONGO_URL || 'mongodb://localhost:27017';
+const dbName = process.env.DB_NAME || 'Port';
 
-if (!mongoUrl || !dbName) {
-  console.error('MONGO_URL and DB_NAME must be set in environment variables');
-  process.exit(1);
-}
-
-const client = new MongoClient(mongoUrl, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
+let client;
 let db;
+let isConnected = false;
 
 async function connectToDatabase() {
   try {
+    if (!mongoUrl.includes('mongodb://') && !mongoUrl.includes('mongodb+srv://')) {
+      console.log('No valid MongoDB URL provided. Running without database.');
+      return null;
+    }
+
+    client = new MongoClient(mongoUrl, {
+      serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+      },
+      connectTimeoutMS: 15000, // 15 seconds
+      serverSelectionTimeoutMS: 15000, // 15 seconds
+    });
+
+    console.log('🔄 Connecting to MongoDB Atlas...');
     await client.connect();
+    
+    // Use the database name from environment or default
     db = client.db(dbName);
-    console.log('Connected to MongoDB');
+    
+    // Test the connection
+    await db.command({ ping: 1 });
+    
+    isConnected = true;
+    console.log('✅ Connected to MongoDB Atlas successfully!');
+    console.log(`📁 Database: ${dbName}`);
     return db;
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+    console.log('⚠️  MongoDB Atlas connection failed:', error.message);
+    console.log('   - Check your internet connection');
+    console.log('   - Verify your MongoDB Atlas credentials');
+    console.log('   - Ensure IP address is whitelisted');
+    console.log('   - Backend will run with fallback data');
+    isConnected = false;
+    return null;
   }
 }
 
 function getDatabase() {
-  if (!db) {
-    throw new Error('Database not connected. Call connectToDatabase() first.');
+  if (!isConnected || !db) {
+    console.log('Database not connected, using fallback data');
+    return null;
   }
   return db;
+}
+
+function isDatabaseConnected() {
+  return isConnected;
 }
 
 module.exports = {
   connectToDatabase,
   getDatabase,
+  isDatabaseConnected,
   client
 };

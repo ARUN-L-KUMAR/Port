@@ -14,11 +14,9 @@ const TerminalOverlay = ({
   const terminalRef = useRef(null);
 
   const defaultCommands = [
-    { text: 'Initializing neural network...', delay: 500 },
-    { text: 'Loading system protocols...', delay: 800 },
-    { text: 'Establishing quantum connections...', delay: 600 },
-    { text: 'Calibrating holographic interface...', delay: 700 },
-    { text: 'System ready for deployment', delay: 500 }
+    { text: 'Initializing neural network...', delay: 200 },
+    { text: 'Loading system protocols...', delay: 200 },
+    { text: 'System ready for deployment', delay: 200 }
   ];
 
   const activeCommands = commands.length > 0 ? commands : defaultCommands;
@@ -32,7 +30,7 @@ const TerminalOverlay = ({
       setIsTyping(true);
     };
 
-    const timer = setTimeout(startSequence, 1000);
+    const timer = setTimeout(startSequence, 300); // Reduced from 1000ms
     return () => clearTimeout(timer);
   }, [isVisible, autoStart]);
 
@@ -47,7 +45,7 @@ const TerminalOverlay = ({
       if (charIndex < text.length) {
         setDisplayedText(prev => prev + text[charIndex]);
         charIndex++;
-        setTimeout(typeChar, 50);
+        setTimeout(typeChar, 15); // Faster typing - 15ms instead of 50ms
       } else {
         // Command complete, move to next
         setTimeout(() => {
