@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ak-live.vercel.app/sitemap.xml
