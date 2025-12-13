@@ -8,7 +8,7 @@ export const portfolioData = {
     subtitle: "AI-Augmented Full Stack Developer",
     tagline: "Turning ideas into delightful digital experiences"
   },
-  
+
   about: {
     title: "About Me",
     description: "I’m Arunkumar — an AI-Augmented Full Stack Developer passionate about building intelligent, user-centric web applications. I specialize in HTML, CSS, JavaScript, React.js, Tailwind CSS, and Node.js, with hands-on experience integrating AI through OpenAI APIs and developing decentralized applications on Ethereum using Solidity. I’ve built real-time solutions like an AI-powered travel CRM (TripXplo) and blockchain-based DApps on the Sepolia testnet. Alongside development, I enjoy crafting intuitive interfaces in Figma for apps like Farmzi and e-commerce dashboards. I also have experience with Python (NumPy, Pandas) and SQL for data-driven backend logic. Driven by curiosity and innovation, I’m always exploring the intersection of AI, full-stack systems, and emerging web technologies to create impactful digital experiences.",
@@ -51,10 +51,10 @@ export const portfolioData = {
       }
     ]
   },
-  
+
   projects: [
 
-     {
+    {
       id: 20,
       title: "Market",
       description: "Realistic e-commerce platform with admin panel, real-time updates, and production-level UI.",
@@ -66,7 +66,7 @@ export const portfolioData = {
     },
     // Frontend Projects
 
-  
+
     {
       id: 2,
       title: "Weather Forecasting App",
@@ -87,8 +87,8 @@ export const portfolioData = {
       githubUrl: "https://github.com/ARUN-L-KUMAR/frontend-basic-projects/tree/main/Day%2010%20(Develop%20a%20Text%20To%20Speech%20Application)",
       status: "Live"
     },
-  
-     {
+
+    {
       id: 1,
       title: "Netflix Clone",
       description: "A responsive Netflix clone built with HTML, CSS, and JavaScript featuring modern UI design and interactive elements.",
@@ -98,7 +98,7 @@ export const portfolioData = {
       githubUrl: "https://github.com/ARUN-L-KUMAR/frontend-basic-projects/tree/main/Day%205%20(Develop%20a%20Realtime%20NETFLIX%20Website)",
       status: "Live"
     },
-    
+
     {
       id: 4,
       title: "Frontend Mini Projects Collection",
@@ -109,9 +109,9 @@ export const portfolioData = {
       githubUrl: "https://github.com/ARUN-L-KUMAR/frontend-basic-projects",
       status: "Live"
     },
-        // AI / Machine Learning Projects
-   
-        // AI / Machine Learning Projects
+    // AI / Machine Learning Projects
+
+    // AI / Machine Learning Projects
     {
       id: 22,
       title: "Crops Disease Detection",
@@ -131,7 +131,7 @@ export const portfolioData = {
       githubUrl: "https://github.com/ARUN-L-KUMAR/Emotion_Detect",
       status: "Live"
     },
-    
+
     {
       id: 17,
       title: "Codealpha_Communication_app",
@@ -162,7 +162,7 @@ export const portfolioData = {
       githubUrl: "https://github.com/ARUN-L-KUMAR/Codealpha_Ecommerce_store",
       status: "Live"
     },
-      {
+    {
       id: 16,
       title: "Codealpha_Social_Media",
       description: "Social media app with post creation, likes, comments, and follow system.",
@@ -202,10 +202,10 @@ export const portfolioData = {
       githubUrl: "https://github.com/ARUN-L-KUMAR/Personal_CRM",
       status: "Live"
     },
-  
+
     // Fullstack Projects
-  
-        {
+
+    {
       id: 5,
       title: "Java With Spring Boot",
       description: "For building scalable and efficient backend services and REST APIs.",
@@ -249,7 +249,7 @@ export const portfolioData = {
     //   status: "Live"
     //},
     // Existing Projects
-    
+
 
     {
       id: 6,
@@ -312,7 +312,7 @@ export const portfolioData = {
       status: "Live"
     }
   ],
-  
+
   skills: {
     categories: [
       {
@@ -377,14 +377,14 @@ export const portfolioData = {
       }
     ]
   },
-  
+
   internships: [
     {
       id: 1,
       company: "CodeAlpha",
       duration: "20th July 2025 – 20th August 2025",
       projects: [
-      
+
         {
           title: "Codealpha Communication App",
           description: "Real-time chat application with group messaging, file sharing, and video calling capabilities.",
@@ -408,7 +408,7 @@ export const portfolioData = {
           githubUrl: "https://github.com/ARUN-L-KUMAR/Codealpha_Ecommerce_store",
           demoUrl: "https://codealpha-ecommerce-store.onrender.com",
           status: "Live"
-        },{
+        }, {
           title: "Codealpha Social Media",
           description: "Full-stack social media platform with user authentication, posts, likes, comments, and real-time messaging features.",
           technologies: ["MERN Stack", "Socket.io", "JWT", "Cloudinary"],
@@ -419,7 +419,7 @@ export const portfolioData = {
       ],
       badge: "CodeAlpha",
       image: "/codealpha.jpeg"
-     },
+    },
     {
       id: 2,
       company: "Edunet Foundation (AICTE Internship)",
@@ -443,7 +443,8 @@ export const portfolioData = {
         }
       ],
       badge: "AICTE",
-      image: "./edunet.jpeg"}
+      image: "./edunet.jpeg"
+    }
     ,
     {
       id: 3,
@@ -460,8 +461,9 @@ export const portfolioData = {
         }
       ],
       badge: "#TripXplo",
-      image: "./tripxplo_logo.jpeg" }
-    ],
+      image: "./tripxplo_logo.jpeg"
+    }
+  ],
 
   contact: {
     title: "Initialize Contact Protocol",

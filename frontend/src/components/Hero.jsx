@@ -66,7 +66,7 @@ const Hero = () => {
           <div className="holo-badge-wrapper mobile-only">
             <HoloBadge isLarge={false} />
           </div>
-         
+
           {/* Name Display - hidden on mobile (shown in badge) */}
           <div className="name-container desktop-only">
             <h1 className="hero-name">
@@ -104,7 +104,7 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="hero-buttons">
-            <button 
+            <button
               className="btn-primary robotic-hover"
               onClick={handleProjectsClick}
               type="button"
@@ -112,7 +112,7 @@ const Hero = () => {
               <span>Initialize Projects</span>
               <Zap className="btn-icon" />
             </button>
-            <button 
+            <button
               className="btn-secondary robotic-hover"
               onClick={handleContactClick}
               type="button"

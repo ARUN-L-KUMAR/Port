@@ -68,10 +68,10 @@ const About = () => {
       {/* Neural Network Background */}
       <div className="neural-background">
         {[...Array(30)].map((_, i) => (
-          <div 
-            key={i} 
-            className="neural-node" 
-            style={{ 
+          <div
+            key={i}
+            className="neural-node"
+            style={{
               '--delay': `${i * 200}ms`,
               '--x': `${Math.random() * 100}%`,
               '--y': `${Math.random() * 100}%`
@@ -303,7 +303,7 @@ const About = () => {
               {about.stats.map((stat, index) => {
                 const statId = `stat-${index}`;
                 const isVisible = visibleStats.has(statId);
-                
+
                 return (
                   <div
                     key={index}
@@ -320,7 +320,7 @@ const About = () => {
                         <div className="indicator-dot active"></div>
                       </div>
                     </div>
-                    
+
                     <div className="stat-content">
                       <div className="stat-value">{stat.value}</div>
                       <div className="stat-label">{stat.label}</div>
@@ -330,12 +330,12 @@ const About = () => {
                     <div className="stat-visualization">
                       <div className="viz-bars">
                         {[...Array(8)].map((_, i) => (
-                          <div 
-                            key={i} 
-                            className="viz-bar" 
-                            style={{ 
+                          <div
+                            key={i}
+                            className="viz-bar"
+                            style={{
                               '--height': `${Math.random() * 100}%`,
-                              '--delay': `${i * 50}ms` 
+                              '--delay': `${i * 50}ms`
                             }}
                           ></div>
                         ))}
@@ -471,14 +471,14 @@ const About = () => {
           <div className="certificate-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>🏆 Certificates & Achievements</h2>
-              <button 
+              <button
                 className="modal-close-btn"
                 onClick={() => setCertificateModalOpen(false)}
               >
                 ×
               </button>
             </div>
-            
+
             <div className="modal-content">
               {about.certificates?.map((cert) => (
                 <div key={cert.id} className="certificate-item">
@@ -490,11 +490,11 @@ const About = () => {
                       <span className="cert-duration">{cert.duration}</span>
                     </div>
                   </div>
-                  
+
                   <div className="cert-description">
                     <p>{cert.description}</p>
                   </div>
-                  
+
                   <div className="cert-details">
                     <div className="cert-projects">
                       <h4>Projects Built:</h4>
@@ -504,7 +504,7 @@ const About = () => {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div className="cert-skills">
                       <h4>Skills Gained:</h4>
                       <div className="skill-tags">

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { portfolioData } from '../data/mock';
-import { 
-  Send, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Github, 
-  Linkedin, 
+import {
+  Send,
+  Mail,
+  Phone,
+  MapPin,
+  Github,
+  Linkedin,
   Terminal,
   Zap,
   Shield,
@@ -30,12 +30,12 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsTransmitting(true);
-    
+
     // Simulate API call with robotic delay
     setTimeout(() => {
       setIsTransmitting(false);
       setTransmissionComplete(true);
-      
+
       // Reset form after success animation
       setTimeout(() => {
         setFormData({ name: '', email: '', subject: '', message: '' });
@@ -58,7 +58,7 @@ const Contact = () => {
       interference.className = 'quantum-interference';
       interference.style.left = Math.random() * 100 + '%';
       interference.style.top = Math.random() * 100 + '%';
-      
+
       if (contactRef.current) {
         contactRef.current.appendChild(interference);
         setTimeout(() => {
@@ -87,10 +87,10 @@ const Contact = () => {
       {/* Quantum Field Background */}
       <div className="quantum-field">
         {[...Array(100)].map((_, i) => (
-          <div 
-            key={i} 
-            className="quantum-particle" 
-            style={{ 
+          <div
+            key={i}
+            className="quantum-particle"
+            style={{
               '--delay': `${i * 50}ms`,
               '--duration': `${3 + Math.random() * 4}s`,
               '--x': `${Math.random() * 100}%`,
@@ -111,10 +111,10 @@ const Contact = () => {
             {contact.title}
           </h2>
           <p className="section-subtitle">{contact.subtitle}</p>
-          
+
           {/* Connection Status */}
           <div className="connection-status">
-            
+
             <div className="encryption-level">
               <Shield className="encryption-icon" />
               <span>Quantum Encryption: Active</span>
@@ -131,12 +131,12 @@ const Contact = () => {
                 <Send className="form-icon" />
                 <span>Transmission Interface</span>
               </div>
-              
+
               <div className="form-status">
                 <div className={`status-light ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : 'ready'}`}></div>
                 <span>
-                  {isTransmitting ? 'Transmitting...' : 
-                   transmissionComplete ? 'Transmission Complete' : 'Ready to Send'}
+                  {isTransmitting ? 'Transmitting...' :
+                    transmissionComplete ? 'Transmission Complete' : 'Ready to Send'}
                 </span>
               </div>
             </div>
@@ -224,8 +224,8 @@ const Contact = () => {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className={`submit-btn ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : ''}`}
                 disabled={isTransmitting}
               >
@@ -307,7 +307,7 @@ const Contact = () => {
               </div>
               <div className="networks-grid">
                 {contact.social.map((social, index) => (
-                  <a 
+                  <a
                     key={index}
                     href={social.url}
                     target="_blank"
@@ -324,8 +324,8 @@ const Contact = () => {
 
             {/* Resume Download */}
             <div className="resume-download">
-              <a 
-                href="/Resume.pdf" 
+              <a
+                href="/Resume.pdf"
                 download="Arun_Kumar_Resume.pdf"
                 className="download-btn"
               >

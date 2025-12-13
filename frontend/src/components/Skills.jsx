@@ -38,7 +38,7 @@ const Skills = () => {
   useEffect(() => {
     // Check if we're on mobile
     const isMobile = window.innerWidth <= 768;
-    
+
     // Only auto-rotate on desktop
     if (!isMobile) {
       const interval = setInterval(() => {
@@ -135,7 +135,7 @@ const Skills = () => {
               {skills.categories[activeCategory].skills.map((skill, skillIndex) => {
                 const skillId = `${activeCategory}-${skillIndex}`;
                 const isVisible = visibleSkills.has(skillId);
-                
+
                 return (
                   <div
                     key={skillIndex}
@@ -146,7 +146,7 @@ const Skills = () => {
                     {/* Skill Header */}
                     <div className="skill-header">
                       <span className="skill-name">{skill.name}</span>
-                      <span 
+                      <span
                         className="skill-level"
                         style={{ color: getSkillColor(skill.level) }}
                       >
@@ -157,9 +157,9 @@ const Skills = () => {
                     {/* Progress Bar */}
                     <div className="skill-progress-container">
                       <div className="skill-progress-bg">
-                        <div 
+                        <div
                           className="skill-progress-fill"
-                          style={{ 
+                          style={{
                             '--progress': `${skill.level}%`,
                             '--color': getSkillColor(skill.level)
                           }}
