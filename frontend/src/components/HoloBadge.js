@@ -21,7 +21,7 @@ const HoloBadge = ({ isLarge = false, variant = 'code' }) => {
           
           {/* Identity content - for mobile */}
           <div className="identity-content">
-            <span className="identity-name">ARUN KUMAR K</span>
+            <span className="identity-name">ARUN KUMAR L</span>
             <div className="identity-divider"></div>
             <span className="identity-role">Full Stack Developer</span>
             <span className="identity-sub">AI-Augmented</span>
