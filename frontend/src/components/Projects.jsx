@@ -9,6 +9,10 @@ const Projects = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedInternships, setExpandedInternships] = useState(new Set());
   const [highlightedProject, setHighlightedProject] = useState(null);
+  /* State for Load More functionality */
+  const [visibleCount, setVisibleCount] = useState(3);
+  const PROJECTS_INCREMENT = 3;
+
   const projectsRef = useRef(null);
   const { projects, internships } = portfolioData;
 
@@ -40,6 +44,11 @@ const Projects = () => {
       return () => projectsElement.removeEventListener('mousemove', handleMouseMove);
     }
   }, []);
+
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(PROJECTS_INCREMENT);
+  }, [selectedCategory, searchQuery]);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -75,18 +84,18 @@ const Projects = () => {
 
     // Specific project categorization based on user's grouping
     if (project.title === 'Netflix Clone' || project.title === 'Weather Forecasting App' ||
-        project.title === 'Text to Speech App' || project.title === 'Frontend Mini Projects Collection' ||
-        project.title === 'Online-Quiz-Application' || project.title === 'Smart-Study-Planner' ||
-        project.title === 'Personal_CRM' || project.title === 'movie-review-platform') {
+      project.title === 'Text to Speech App' || project.title === 'Frontend Mini Projects Collection' ||
+      project.title === 'Online-Quiz-Application' || project.title === 'Smart-Study-Planner' ||
+      project.title === 'Personal_CRM' || project.title === 'movie-review-platform') {
       set.add('Frontend');
     }
     if (project.title === 'Java With Spring Boot' || project.title === 'Codealpha_Social_Media' ||
-        project.title === 'Codealpha_Communication_app' || project.title === 'Codealpha_Project_Management' ||
-        project.title === 'Codealpha_Ecommerce_store' || project.title === 'Market') {
+      project.title === 'Codealpha_Communication_app' || project.title === 'Codealpha_Project_Management' ||
+      project.title === 'Codealpha_Ecommerce_store' || project.title === 'Market') {
       set.add('Full Stack');
     }
     if (project.title === 'Data Science & Analysis Basics' || project.title === 'Emotion_Detect Public' ||
-        project.title === 'Crops Disease Detection') {
+      project.title === 'Crops Disease Detection') {
       set.add('AI / ML');
     }
     if (project.title === 'UI & UX Design' || project.title === 'Agritech App UI') {
@@ -96,7 +105,7 @@ const Projects = () => {
       set.add('Blockchain / Web3');
     }
     if (project.title === 'AICTE – Sustainable Agriculture' || project.title === 'AICTE – Web Development' ||
-        project.title === 'CodeAlpha Internship' || tech.includes('#internship')) {
+      project.title === 'CodeAlpha Internship' || tech.includes('#internship')) {
       set.add('Internships');
     }
 
@@ -138,6 +147,13 @@ const Projects = () => {
     ? internships.filter(internship => matchesSearch({ title: internship.company, description: internship.projects.map(p => p.title).join(' ') }))
     : projects.filter(p => inSelectedCategory(p) && matchesSearch(p));
 
+  const visibleProjects = filteredProjects.slice(0, visibleCount);
+  const hasMoreProjects = visibleCount < filteredProjects.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => prev + PROJECTS_INCREMENT);
+  };
+
   const toggleInternshipExpansion = (internshipId) => {
     setExpandedInternships(prev => {
       const newSet = new Set(prev);
@@ -174,9 +190,9 @@ const Projects = () => {
     <section ref={projectsRef} className="projects-section" id="projects">
       {/* Background Pattern */}
       <div className="section-bg-pattern"></div>
-      
+
       {/* Holographic Cursor Follower */}
-      <div 
+      <div
         className="holographic-cursor"
         style={{
           left: `${mousePosition.x}%`,
@@ -225,7 +241,7 @@ const Projects = () => {
 
         {/* Projects Grid */}
         <div className="projects-grid">
-          {filteredProjects.map((item, index) => {
+          {visibleProjects.map((item, index) => {
             const isInternship = selectedCategory === 'Internships';
             const project = isInternship ? null : item;
             const internship = isInternship ? item : null;
@@ -430,13 +446,25 @@ const Projects = () => {
           })}
         </div>
 
-        {/* Loading More Indicator */}
-        <div className="load-more-indicator">
-          <div className="loading-bar">
-            <div className="loading-progress"></div>
+        {/* Load More Button */}
+        {hasMoreProjects && (
+          <div className="load-more-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+            <button
+              className="action-btn primary load-more-btn"
+              onClick={handleLoadMore}
+              style={{
+                padding: '0.8rem 2rem',
+                fontSize: '1rem',
+                letterSpacing: '1px',
+                cursor: 'pointer'
+              }}
+            >
+              <ChevronDown className="btn-icon" />
+              <span>LOAD MORE DATA</span>
+              <div className="btn-glow"></div>
+            </button>
           </div>
-          <span className="loading-text">Analyzing more projects...</span>
-        </div>
+        )}
       </div>
     </section>
   );

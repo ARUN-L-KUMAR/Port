@@ -1,130 +1,153 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import './TerminalOverlay.css';
 
-const TerminalOverlay = ({
-  isVisible = false,
-  commands = [],
-  autoStart = false,
-  onComplete = () => {}
-}) => {
-  const [currentCommand, setCurrentCommand] = useState(0);
-  const [displayedText, setDisplayedText] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [showCursor, setShowCursor] = useState(true);
-  const terminalRef = useRef(null);
+// Component to handle the decryption animation for a single line
+const DecipherText = ({ text, speed = 30, revealSpeed = 50 }) => {
+  const [displayText, setDisplayText] = useState('');
+  const [isComplete, setIsComplete] = useState(false);
 
-  const defaultCommands = [
-    { text: 'Initializing neural network...', delay: 200 },
-    { text: 'Loading system protocols...', delay: 200 },
-    { text: 'System ready for deployment', delay: 200 }
+  useEffect(() => {
+    let iterations = 0;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*[]<>';
+    const totalIterations = text.length + 5; // Run a bit longer than length
+
+    const interval = setInterval(() => {
+      if (iterations >= totalIterations) {
+        setDisplayText(text);
+        setIsComplete(true);
+        clearInterval(interval);
+        return;
+      }
+
+      const scrambled = text.split('').map((char, index) => {
+        if (index < iterations) {
+          return text[index];
+        }
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join('');
+
+      setDisplayText(scrambled);
+      iterations += 1 / 2; // Slow down the reveal slightly
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return (
+    <span className={`terminal-text ${isComplete ? 'completed' : 'decrypting'}`}>
+      {displayText}
+    </span>
+  );
+};
+
+const TerminalOverlay = ({ isVisible, autoStart = false, onComplete }) => {
+  const [lines, setLines] = useState([]);
+  const [isBooting, setIsBooting] = useState(autoStart);
+  const [showHackedScreen, setShowHackedScreen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Ref to scroll to bottom
+  const terminalBodyRef = useRef(null);
+
+  const bootSequence = [
+    { text: '> $ INITIALIZING SYSTEM...[1]', delay: 400 },
+    { text: '> Loading neural network...[2]', delay: 400 },
+    { text: '> Establishing quantum link...[3]', delay: 400 },
+    { text: '> Synchronizing data streams...[4]', delay: 400 },
+    { text: '> Activating holographic interface...[5]', delay: 400 },
+    { text: '> Calibrating sensors...[6]', delay: 400 },
+    { text: '> System check... [OK]', delay: 500 },
+    { text: '> $ All systems operational$', delay: 600 },
   ];
 
-  const activeCommands = commands.length > 0 ? commands : defaultCommands;
-
   useEffect(() => {
-    if (!isVisible || !autoStart) return;
+    if (autoStart && isVisible) {
+      let currentIndex = 0;
 
-    const startSequence = () => {
-      setCurrentCommand(0);
-      setDisplayedText('');
-      setIsTyping(true);
-    };
+      const runBootSequence = () => {
+        if (currentIndex < bootSequence.length) {
+          const line = bootSequence[currentIndex];
 
-    const timer = setTimeout(startSequence, 300); // Reduced from 1000ms
-    return () => clearTimeout(timer);
-  }, [isVisible, autoStart]);
+          setLines(prev => [...prev, line.text]);
 
-  useEffect(() => {
-    if (!isTyping || currentCommand >= activeCommands.length) return;
-
-    const command = activeCommands[currentCommand];
-    const text = command.text;
-    let charIndex = 0;
-
-    const typeChar = () => {
-      if (charIndex < text.length) {
-        setDisplayedText(prev => prev + text[charIndex]);
-        charIndex++;
-        setTimeout(typeChar, 15); // Faster typing - 15ms instead of 50ms
-      } else {
-        // Command complete, move to next
-        setTimeout(() => {
-          if (currentCommand < activeCommands.length - 1) {
-            setCurrentCommand(prev => prev + 1);
-            setDisplayedText('');
-          } else {
-            setIsTyping(false);
-            onComplete();
+          // Auto scroll
+          if (terminalBodyRef.current) {
+            terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
           }
-        }, command.delay);
-      }
-    };
 
-    typeChar();
-  }, [currentCommand, isTyping, activeCommands.length, onComplete]);
+          currentIndex++;
+          // Wait for the delay defined in the sequence before showing the next line
+          // The decryption animation runs independently within the component
+          setTimeout(runBootSequence, line.delay + 200); // Add a small buffer for effect
+        } else {
+          // Boot sequence finished
+          setTimeout(() => {
+            setLines([]); // Clear screen visually
+            setShowHackedScreen(true);
 
-  // Cursor blink effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setShowCursor(prev => !prev);
-    }, 500);
-    return () => clearInterval(interval);
-  }, []);
+            // Sequence: HACKED -> ACCESS GRANTED -> WELCOME -> FINISH
+            setTimeout(() => {
+              setShowWelcome(true);
+
+              setTimeout(() => {
+                setIsBooting(false); // Triggers fade out
+                if (onComplete) onComplete();
+              }, 3000); // Time to see the Welcome message
+            }, 2000); // Time to see Access Granted before Welcome
+          }, 1000); // Pause before clearing
+        }
+      };
+
+      // Start the sequence
+      const initialDelay = setTimeout(runBootSequence, 500);
+      return () => clearTimeout(initialDelay);
+    }
+  }, [autoStart, isVisible, onComplete]);
 
   if (!isVisible) return null;
 
   return (
-    <div className="terminal-overlay">
-      <div className="terminal-window" ref={terminalRef}>
+    <div className={`terminal-overlay ${!isBooting ? 'fade-out' : ''}`}>
+      <div className="terminal-container">
         <div className="terminal-header">
-          <div className="terminal-controls">
-            <div className="control-dot red"></div>
-            <div className="control-dot yellow"></div>
-            <div className="control-dot green"></div>
+          <div className="terminal-title">TERMINAL_ROOT_ACCESS</div>
+          <div className="terminal-buttons">
+            <div className="terminal-button"></div>
+            <div className="terminal-button"></div>
+            <div className="terminal-button"></div>
           </div>
-          <span className="terminal-title">AI Terminal - System Boot</span>
         </div>
 
-        <div className="terminal-content">
-          <div className="terminal-line">
-            <span className="prompt">{'>'}</span>
-            <span className="command">system.init()</span>
-          </div>
-
-          {currentCommand > 0 && (
+        <div className="terminal-body" ref={terminalBodyRef}>
+          {!showHackedScreen ? (
+            // Standard Boot Sequence
             <>
-              {Array.from({ length: currentCommand }, (_, i) => (
-                <div key={i} className="terminal-line completed">
-                  <span className="prompt">{'>'}</span>
-                  <span className="command">{activeCommands[i].text}</span>
-                  <span className="output success">OK</span>
+              {lines.map((text, i) => (
+                <div key={i} className="terminal-line boot-text">
+                  <DecipherText text={text} speed={20} />
                 </div>
               ))}
+              <div className="terminal-line">
+                <span className="terminal-prompt">{'>'}</span>
+                <span className="terminal-cursor">_</span>
+              </div>
             </>
-          )}
-
-          {isTyping && (
-            <div className="terminal-line active">
-              <span className="prompt">{'>'}</span>
-              <span className="command">{displayedText}</span>
-              <span className={`cursor ${showCursor ? 'visible' : ''}`}>|</span>
+          ) : (
+            // HACKED Screen
+            <div className="hacked-container">
+              <div className="hacked-text" data-text="HACKED PORTFOLIO">
+                HACKED PORTFOLIO
+              </div>
+              <div className="access-granted">
+                ACCESS GRANTED
+              </div>
+              {showWelcome && (
+                <div className="welcome-message">
+                  WELCOME TO MY PORTFOLIO
+                </div>
+              )}
             </div>
           )}
-
-          {!isTyping && currentCommand >= activeCommands.length && (
-            <div className="terminal-line success">
-              <span className="prompt">{'>'}</span>
-              <span className="command">All systems operational</span>
-              <span className="output success">READY</span>
-            </div>
-          )}
-        </div>
-
-        <div className="terminal-footer">
-          <div className="system-status">
-            <span className="status-indicator active"></span>
-            <span>Neural Network Active</span>
-          </div>
         </div>
       </div>
     </div>
