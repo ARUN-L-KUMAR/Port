@@ -69,6 +69,7 @@ const Hero = () => {
 
           {/* Name Display - hidden on mobile (shown in badge) */}
           <div className="name-container desktop-only">
+          <h1 className="hero">ARUN.L.KUMAR</h1>
             <h1 className="hero-name">
               {displayText}
               <span className="cursor-blink">|</span>
@@ -131,6 +132,9 @@ const Hero = () => {
             <div className="status-item">
               <div className="status-dot active"></div>
               <span>Open to Collaborations</span>
+              <p className="seo-anchor">
+ ARUN.L.KUMAR is, a Full Stack Developer and UI/UX Designer specializing in modern web applications.
+</p>
             </div>
           </div>
         </div>

@@ -56,6 +56,12 @@ body {
   min-height: 100vh;
 }
 
+
+.hero{
+  font-weight: 700;
+}
+
+
 /* ==============================================
    CURSOR TRAIL EFFECTS
    ============================================== */
@@ -4261,6 +4267,14 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+.seo-anchor {
+  font-size: 0.75rem;
+  color: #999;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
 
 /* Enhanced status loading states */
 .status-value.loading {
