@@ -3,9 +3,11 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const statusRoutes = require('./api/routes/statusRoutes');
 const healthRoutes = require('./api/routes/healthRoutes');
+const analyticsRoutes = require('./api/routes/analyticsRoutes');
 const logger = require('./api/middleware/logger');
 const errorHandler = require('./api/middleware/errorHandler');
 const { connectToDatabase, client, isDatabaseConnected } = require('./config/db');
+const { initializeTransporter } = require('./utils/emailService');
 
 // Load environment variables
 dotenv.config();
@@ -18,15 +20,15 @@ const PORT = process.env.PORT || 5000;
 app.use(logger);
 
 // CORS Configuration - supports both development and production
-const allowedOrigins = process.env.FRONTEND_URL 
+const allowedOrigins = process.env.FRONTEND_URL
   ? [process.env.FRONTEND_URL, 'http://localhost:3000', 'http://localhost:3001']
   : ['http://localhost:3000', 'http://localhost:3001'];
 
 app.use(cors({
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
       callback(null, true);
     } else {
@@ -49,6 +51,7 @@ app.get('/api', (req, res) => {
 // Routes
 app.use('/api', statusRoutes);
 app.use('/api', healthRoutes);
+app.use('/api', analyticsRoutes);
 
 // Error handling middleware (should be last)
 app.use(errorHandler);
@@ -67,7 +70,10 @@ async function startServer() {
   try {
     // Try to connect to database (non-blocking)
     await connectToDatabase();
-    
+
+    // Initialize email service
+    initializeTransporter();
+
     // Start server regardless of database connection
     app.listen(PORT, () => {
       console.log('🚀 Portfolio Backend Server');
