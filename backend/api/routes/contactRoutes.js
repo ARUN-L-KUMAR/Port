@@ -182,4 +182,41 @@ router.patch('/contacts/:id', async (req, res) => {
     }
 });
 
+// DELETE /api/contacts - Delete all contact submissions (admin only)
+router.delete('/contacts', async (req, res) => {
+    try {
+        // Check for admin auth
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ success: false, error: 'Unauthorized' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const adminSecret = process.env.ADMIN_SECRET || 'Arun@005';
+
+        if (token !== adminSecret) {
+            return res.status(403).json({ success: false, error: 'Forbidden' });
+        }
+
+        if (!isDatabaseConnected()) {
+            return res.status(503).json({ success: false, error: 'Database not connected' });
+        }
+
+        const db = getDatabase();
+        const contactsCollection = db.collection('contacts');
+
+        const result = await contactsCollection.deleteMany({});
+        console.log(`🗑️ Deleted ${result.deletedCount} contact messages`);
+
+        return res.json({
+            success: true,
+            message: `Deleted ${result.deletedCount} messages`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        console.error('❌ Error deleting contacts:', error);
+        return res.status(500).json({ success: false, error: 'Failed to delete contacts' });
+    }
+});
+
 module.exports = router;

@@ -322,6 +322,56 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
         }
     };
 
+    const handleClearAllMessages = async () => {
+        if (!window.confirm('Are you sure you want to delete ALL messages? This cannot be undone.')) {
+            return;
+        }
+        try {
+            const response = await fetch(`${API_URL}/api/contacts`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setMessages([]);
+                alert(`Deleted ${data.deletedCount} messages successfully!`);
+            } else {
+                alert('Failed to delete messages: ' + (data.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Failed to clear messages:', error);
+            alert('Failed to clear messages. Please try again.');
+        }
+    };
+
+    const handleResetAllData = async () => {
+        if (!window.confirm('⚠️ WARNING: This will delete ALL analytics data including:\n- All visitor records\n- All click events\n- All contact messages\n\nThis cannot be undone. Are you sure?')) {
+            return;
+        }
+        try {
+            const response = await fetch(`${API_URL}/api/analytics/clear-all`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                alert(`✅ All data cleared!\n- ${data.deleted.visitors} visitors\n- ${data.deleted.events} events\n- ${data.deleted.contacts} messages`);
+                window.location.reload();
+            } else {
+                alert('Failed to clear data: ' + (data.message || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Failed to reset data:', error);
+            alert('Failed to reset data. Please try again.');
+        }
+    };
+
     const calculateDonutData = (data, total) => {
         if (!data || data.length === 0 || total === 0) return [];
         const colors = ['#00ff88', '#00aaff', '#ff6b6b', '#ffd93d', '#6c5ce7', '#a29bfe'];
@@ -371,6 +421,9 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
                 </div>
                 <div className="header-right">
                     <span className="last-updated">Last updated: {new Date().toLocaleTimeString()}</span>
+                    <button className="reset-btn" onClick={handleResetAllData}>
+                        🗑️ Reset Data
+                    </button>
                     <button className="logout-btn" onClick={onLogout}>
                         Logout 🚪
                     </button>
@@ -1111,7 +1164,14 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
                     <div className="messages-section">
                         <div className="messages-header">
                             <h3>📬 Contact Form Submissions</h3>
-                            <span className="messages-count">{messages.length} messages</span>
+                            <div className="messages-header-actions">
+                                <span className="messages-count">{messages.length} messages</span>
+                                {messages.length > 0 && (
+                                    <button className="action-btn clear-all-btn" onClick={handleClearAllMessages}>
+                                        🗑️ Clear All
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
                         {messages.length === 0 ? (

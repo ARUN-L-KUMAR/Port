@@ -618,3 +618,40 @@ exports.getTopProjects = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to get top projects' });
     }
 };
+
+// Clear all analytics data (admin only)
+exports.clearAllData = async (req, res) => {
+    try {
+        const db = getDatabase();
+
+        // Clear analytics (visitors) collection
+        const analyticsResult = await db.collection('analytics').deleteMany({});
+
+        // Clear events collection
+        const eventsResult = await db.collection('events').deleteMany({});
+
+        // Clear contacts collection
+        const contactsResult = await db.collection('contacts').deleteMany({});
+
+        // Clear in-memory sessions
+        activeSessions.clear();
+
+        console.log(`🗑️ Cleared all data:`);
+        console.log(`   - ${analyticsResult.deletedCount} visitor records`);
+        console.log(`   - ${eventsResult.deletedCount} event records`);
+        console.log(`   - ${contactsResult.deletedCount} contact messages`);
+
+        res.json({
+            success: true,
+            message: 'All analytics data cleared',
+            deleted: {
+                visitors: analyticsResult.deletedCount,
+                events: eventsResult.deletedCount,
+                contacts: contactsResult.deletedCount
+            }
+        });
+    } catch (error) {
+        console.error('Clear all data error:', error);
+        res.status(500).json({ success: false, message: 'Failed to clear data' });
+    }
+};

@@ -19,4 +19,7 @@ router.get('/analytics/events', adminAuth, analyticsController.getEvents);
 // Admin auth
 router.post('/analytics/login', analyticsController.adminLogin);
 
+// Clear all data (admin only)
+router.delete('/analytics/clear-all', adminAuth, analyticsController.clearAllData);
+
 module.exports = router;
