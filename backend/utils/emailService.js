@@ -297,6 +297,7 @@ const sendContactFormEmail = async (contactData) => {
 
 module.exports = {
     initializeTransporter,
-    sendLinkedInVisitorNotification,
+    sendEntryAlertEmail,
+    sendExitReportEmail,
     sendContactFormEmail
 };
