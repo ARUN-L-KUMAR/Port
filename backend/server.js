@@ -1,16 +1,17 @@
+// Load environment variables FIRST before any other imports
+const dotenv = require('dotenv');
+dotenv.config();
+
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const statusRoutes = require('./api/routes/statusRoutes');
 const healthRoutes = require('./api/routes/healthRoutes');
 const analyticsRoutes = require('./api/routes/analyticsRoutes');
+const contactRoutes = require('./api/routes/contactRoutes');
 const logger = require('./api/middleware/logger');
 const errorHandler = require('./api/middleware/errorHandler');
 const { connectToDatabase, client, isDatabaseConnected } = require('./config/db');
 const { initializeTransporter } = require('./utils/emailService');
-
-// Load environment variables
-dotenv.config();
 
 // Create Express app
 const app = express();
@@ -45,7 +46,7 @@ app.use(cors({
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
@@ -63,6 +64,7 @@ app.get('/api', (req, res) => {
 app.use('/api', statusRoutes);
 app.use('/api', healthRoutes);
 app.use('/api', analyticsRoutes);
+app.use('/api', contactRoutes);
 
 // Error handling middleware (should be last)
 app.use(errorHandler);

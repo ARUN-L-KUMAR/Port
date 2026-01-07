@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import useAnalytics from '../hooks/useAnalytics';
 
 /**
@@ -6,14 +7,25 @@ import useAnalytics from '../hooks/useAnalytics';
  * Add this to your App.js to enable analytics.
  */
 const AnalyticsTracker = () => {
-    const { sessionId } = useAnalytics();
+    const { sessionId, trackEvent } = useAnalytics();
+    const location = useLocation();
 
     useEffect(() => {
-        // Log for debugging (remove in production if desired)
+        // Log for debugging
         if (process.env.NODE_ENV === 'development') {
             console.log('📊 Analytics active, session:', sessionId);
         }
     }, [sessionId]);
+
+    // Track page views on route change
+    useEffect(() => {
+        if (trackEvent) {
+            trackEvent('page_view', {
+                path: location.pathname,
+                title: document.title
+            });
+        }
+    }, [location.pathname, trackEvent]);
 
     // This component renders nothing
     return null;

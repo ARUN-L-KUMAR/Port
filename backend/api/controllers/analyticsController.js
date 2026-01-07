@@ -1,14 +1,14 @@
 const { getDatabase } = require('../../config/db');
 const { v4: uuidv4 } = require('uuid');
-const { sendLinkedInVisitorNotification } = require('../../utils/emailService');
+const { sendEntryAlertEmail, sendExitReportEmail } = require('../../utils/emailService');
 
-// In-memory store for active sessions (for live count)
+// In-memory store for active sessions (for live count & session history)
 const activeSessions = new Map();
 
 // Session timeout (1 minute without heartbeat = inactive)
 const SESSION_TIMEOUT = 60000;
 
-// Helper: Parse user agent for device/browser info
+// ... (helpers remain the same) ...
 const parseUserAgent = (userAgent) => {
     if (!userAgent) return { device: 'Unknown', browser: 'Unknown' };
 
@@ -27,14 +27,11 @@ const parseUserAgent = (userAgent) => {
     return { device, browser };
 };
 
-// Helper: Get approximate location from IP (free API)
 const getLocationFromIP = async (ip) => {
     try {
-        // Skip for localhost/private IPs
         if (!ip || ip === '::1' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
             return { country: 'Local', city: 'Development' };
         }
-
         const response = await fetch(`http://ip-api.com/json/${ip}?fields=country,city`);
         const data = await response.json();
         return { country: data.country || 'Unknown', city: data.city || 'Unknown' };
@@ -44,13 +41,11 @@ const getLocationFromIP = async (ip) => {
     }
 };
 
-// Helper: Parse referrer to identify source
 const parseReferrer = (referrer) => {
     if (!referrer) return 'Direct';
 
     const url = referrer.toLowerCase();
-    // LinkedIn detection - includes mobile app package names
-    if (url.includes('linkedin.com') || url.includes('linkedin.android') || url.includes('com.linkedin.android') || url.includes('com.linkedin')) {
+    if (url.includes('linkedin.com') || url.includes('linkedin.android') || url.includes('com.linkedin')) {
         return 'LinkedIn';
     }
     if (url.includes('google.com')) return 'Google';
@@ -59,7 +54,6 @@ const parseReferrer = (referrer) => {
     if (url.includes('facebook.com')) return 'Facebook';
     if (url.includes('instagram.com')) return 'Instagram';
 
-    // Try to extract domain
     try {
         const domain = new URL(referrer).hostname.replace('www.', '');
         return domain;
@@ -68,40 +62,53 @@ const parseReferrer = (referrer) => {
     }
 };
 
-// Clean up inactive sessions periodically
+// Clean up inactive sessions periodically & Send Exit Reports
 setInterval(() => {
     const now = Date.now();
     for (const [sessionId, session] of activeSessions) {
         if (now - session.lastSeen > SESSION_TIMEOUT) {
+            // Session expired - check if we should send Exit Report
+            const durationSeconds = (session.lastSeen - new Date(session.timestamp).getTime()) / 1000;
+            const source = session.referrer;
+
+            // Criteria for Exit Report: From LinkedIn OR High Engagement (> 2 mins or > 3 pages)
+            const shouldSendExitReport =
+                source === 'LinkedIn' ||
+                durationSeconds > 120 ||
+                (session.pages && session.pages.length > 3);
+
+            if (shouldSendExitReport) {
+                console.log(`📊 Generating Exit Report for session ${sessionId} (${source})`);
+                sendExitReportEmail({
+                    ...session,
+                    duration: durationSeconds
+                }).catch(err => console.error('Exit report failed:', err));
+            }
+
             activeSessions.delete(sessionId);
         }
     }
 }, 30000);
 
-// Track a new visit
+// Track a new visit (ENTRY)
 exports.trackVisit = async (req, res) => {
     try {
         const db = getDatabase();
         const { sessionId: clientSessionId, path, referrer } = req.body;
 
-        // Get client IP
         const ip = req.headers['x-forwarded-for']?.split(',')[0] ||
             req.headers['x-real-ip'] ||
-            req.socket.remoteAddress ||
-            'Unknown';
+            req.socket.remoteAddress || 'Unknown';
 
         const userAgent = req.headers['user-agent'];
         const { device, browser } = parseUserAgent(userAgent);
         const location = await getLocationFromIP(ip);
         const source = parseReferrer(referrer);
-
-        // Generate or use existing session ID
         const sessionId = clientSessionId || uuidv4();
 
-        // Create visit record
         const visitData = {
             sessionId,
-            ip: ip.substring(0, 20) + '...', // Partially hide IP for privacy
+            ip: ip.substring(0, 20) + '...',
             country: location.country,
             city: location.city,
             device,
@@ -110,51 +117,69 @@ exports.trackVisit = async (req, res) => {
             referrerFull: referrer || 'Direct',
             path: path || '/',
             timestamp: new Date(),
-            lastSeen: new Date()
+            lastSeen: new Date(),
+            // Initialize history
+            pages: [{ path: path || '/', time: new Date() }],
+            events: []
         };
 
-        // Store in active sessions for live count
-        activeSessions.set(sessionId, {
-            ...visitData,
-            lastSeen: Date.now()
-        });
+        // If session already exists, just update it (don't reset history)
+        if (activeSessions.has(sessionId)) {
+            const existing = activeSessions.get(sessionId);
+            existing.lastSeen = Date.now();
+            // Don't duplicate page view if it's the same
+            const lastPage = existing.pages[existing.pages.length - 1];
+            if (lastPage.path !== (path || '/')) {
+                existing.pages.push({ path: path || '/', time: new Date() });
+            }
+            activeSessions.set(sessionId, existing);
+        } else {
+            // New Session - Send Entry Alert
+            activeSessions.set(sessionId, { ...visitData, lastSeen: Date.now() });
 
-        // Store in database if connected
-        if (db) {
-            await db.collection('visits').insertOne(visitData);
+            // Store in DB
+            if (db) await db.collection('visits').insertOne(visitData);
+
+            // Send Entry Alert for LinkedIn
+            if (source === 'LinkedIn') {
+                console.log(`🔔 New LinkedIn visitor! Sending Entry Alert...`);
+                sendEntryAlertEmail(visitData).catch(err => console.error('Entry alert failed:', err));
+            }
         }
 
-        // Send email notification if visitor is from LinkedIn
-        console.log(`Visitor source detected: ${source} (referrer: ${referrer})`);
-        if (source === 'LinkedIn') {
-            console.log('🔔 LinkedIn visitor detected! Sending email notification...');
-            sendLinkedInVisitorNotification(visitData).catch(err => {
-                console.error('Email notification failed:', err.message);
-            });
-        }
-
-        res.json({
-            success: true,
-            sessionId,
-            message: 'Visit tracked'
-        });
+        res.json({ success: true, sessionId, message: 'Visit tracked' });
     } catch (error) {
         console.error('Track visit error:', error);
         res.status(500).json({ success: false, message: 'Failed to track visit' });
     }
 };
 
-// Track custom events (like project clicks)
+// Track custom events & Page Views
 exports.trackEvent = async (req, res) => {
     try {
         const db = getDatabase();
         const { sessionId, eventType, eventData } = req.body;
 
         if (!sessionId || !eventType) {
-            return res.status(400).json({
-                success: false,
-                message: 'sessionId and eventType are required'
-            });
+            return res.status(400).json({ success: false, message: 'Missing args' });
+        }
+
+        // Update active session history
+        if (activeSessions.has(sessionId)) {
+            const session = activeSessions.get(sessionId);
+            session.lastSeen = Date.now();
+
+            if (eventType === 'page_view') {
+                const path = eventData?.path;
+                // Avoid adjacent duplicates
+                const lastPage = session.pages[session.pages.length - 1];
+                if (path && (!lastPage || lastPage.path !== path)) {
+                    session.pages.push({ path, time: new Date() });
+                }
+            } else {
+                session.events.push({ type: eventType, data: eventData, time: new Date() });
+            }
+            activeSessions.set(sessionId, session);
         }
 
         const eventRecord = {
@@ -164,9 +189,7 @@ exports.trackEvent = async (req, res) => {
             timestamp: new Date()
         };
 
-        if (db) {
-            await db.collection('events').insertOne(eventRecord);
-        }
+        if (db) await db.collection('events').insertOne(eventRecord);
 
         res.json({ success: true, message: 'Event tracked' });
     } catch (error) {
@@ -437,5 +460,161 @@ exports.adminLogin = async (req, res) => {
     } catch (error) {
         console.error('Admin login error:', error);
         res.status(500).json({ success: false, message: 'Login failed' });
+    }
+};
+
+// Get extended analytics stats (device/browser distribution, hourly patterns, etc.)
+exports.getExtendedStats = async (req, res) => {
+    try {
+        const db = getDatabase();
+
+        if (!db) {
+            return res.json({
+                success: true,
+                extendedStats: {
+                    deviceDistribution: [],
+                    browserDistribution: [],
+                    hourlyTraffic: [],
+                    topCities: [],
+                    last30DaysViews: [],
+                    weeklyComparison: { current: 0, previous: 0, change: 0 }
+                }
+            });
+        }
+
+        const now = new Date();
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+        let deviceDistribution = [];
+        let browserDistribution = [];
+        let hourlyTraffic = [];
+        let topCities = [];
+        let last30DaysViews = [];
+        let currentWeekViews = 0;
+        let previousWeekViews = 0;
+
+        try {
+            // Device distribution
+            deviceDistribution = await db.collection('visits').aggregate([
+                { $group: { _id: '$device', count: { $sum: 1 } } },
+                { $sort: { count: -1 } }
+            ]).toArray();
+        } catch (e) {
+            console.error('Error getting device distribution:', e.message);
+        }
+
+        try {
+            // Browser distribution
+            browserDistribution = await db.collection('visits').aggregate([
+                { $group: { _id: '$browser', count: { $sum: 1 } } },
+                { $sort: { count: -1 } },
+                { $limit: 6 }
+            ]).toArray();
+        } catch (e) {
+            console.error('Error getting browser distribution:', e.message);
+        }
+
+        try {
+            // Hourly traffic pattern (last 7 days)
+            hourlyTraffic = await db.collection('visits').aggregate([
+                { $match: { timestamp: { $gte: sevenDaysAgo } } },
+                {
+                    $group: {
+                        _id: { $hour: '$timestamp' },
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]).toArray();
+        } catch (e) {
+            console.error('Error getting hourly traffic:', e.message);
+        }
+
+        try {
+            // Top cities
+            topCities = await db.collection('visits').aggregate([
+                { $group: { _id: '$city', count: { $sum: 1 } } },
+                { $sort: { count: -1 } },
+                { $limit: 5 }
+            ]).toArray();
+        } catch (e) {
+            console.error('Error getting top cities:', e.message);
+        }
+
+        try {
+            // Last 30 days views
+            last30DaysViews = await db.collection('visits').aggregate([
+                { $match: { timestamp: { $gte: thirtyDaysAgo } } },
+                {
+                    $group: {
+                        _id: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } },
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } }
+            ]).toArray();
+        } catch (e) {
+            console.error('Error getting last 30 days views:', e.message);
+        }
+
+        try {
+            // Weekly comparison
+            currentWeekViews = await db.collection('visits').countDocuments({
+                timestamp: { $gte: sevenDaysAgo }
+            });
+            previousWeekViews = await db.collection('visits').countDocuments({
+                timestamp: { $gte: fourteenDaysAgo, $lt: sevenDaysAgo }
+            });
+        } catch (e) {
+            console.error('Error getting weekly comparison:', e.message);
+        }
+
+        const weeklyChange = previousWeekViews > 0
+            ? Math.round(((currentWeekViews - previousWeekViews) / previousWeekViews) * 100)
+            : 0;
+
+        res.json({
+            success: true,
+            extendedStats: {
+                deviceDistribution,
+                browserDistribution,
+                hourlyTraffic,
+                topCities,
+                last30DaysViews,
+                weeklyComparison: {
+                    current: currentWeekViews,
+                    previous: previousWeekViews,
+                    change: weeklyChange
+                }
+            }
+        });
+    } catch (error) {
+        console.error('Get extended stats error:', error);
+        res.status(500).json({ success: false, message: 'Failed to get extended stats' });
+    }
+};
+
+// Get top projects (most clicked)
+exports.getTopProjects = async (req, res) => {
+    try {
+        const db = getDatabase();
+
+        if (!db) {
+            return res.json({ success: true, topProjects: [] });
+        }
+
+        const topProjects = await db.collection('events').aggregate([
+            { $match: { eventType: 'project_click' } },
+            { $group: { _id: '$eventData.projectName', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
+        ]).toArray();
+
+        res.json({ success: true, topProjects });
+    } catch (error) {
+        console.error('Get top projects error:', error);
+        res.status(500).json({ success: false, message: 'Failed to get top projects' });
     }
 };

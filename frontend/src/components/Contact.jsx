@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { portfolioData } from '../data/mock';
+import emailjs from '@emailjs/browser';
 import {
   Send,
   Mail,
@@ -14,6 +15,13 @@ import {
   Download
 } from 'lucide-react';
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+// EmailJS configuration
+const EMAILJS_SERVICE_ID = 'service_ouq955n';
+const EMAILJS_TEMPLATE_ID = 'template_wnm75bf';
+const EMAILJS_PUBLIC_KEY = 'N7fgACS-m8PSrnVJo';
+
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -23,25 +31,74 @@ const Contact = () => {
   });
   const [isTransmitting, setIsTransmitting] = useState(false);
   const [transmissionComplete, setTransmissionComplete] = useState(false);
+  const [transmissionError, setTransmissionError] = useState(null);
   const contactRef = useRef(null);
   const { contact } = portfolioData;
 
-  // Form submission handler
+  // Send auto-reply via EmailJS from browser
+  const sendAutoReply = async (formData) => {
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          to_name: formData.name,
+          email: formData.email,
+          from_name: 'Arun L. Kumar',
+          subject: formData.subject,
+          message: formData.message,
+          reply_to: 'arunkumar582004@gmail.com'
+        },
+        EMAILJS_PUBLIC_KEY
+      );
+      console.log('✅ Auto-reply sent via EmailJS');
+    } catch (error) {
+      console.error('❌ Failed to send auto-reply:', error);
+    }
+  };
+
+  // Form submission handler - sends to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsTransmitting(true);
+    setTransmissionError(null);
 
-    // Simulate API call with robotic delay
-    setTimeout(() => {
+    try {
+      const response = await fetch(`${API_URL}/api/contact`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Send auto-reply to the user via EmailJS (from browser)
+        await sendAutoReply(formData);
+
+        setIsTransmitting(false);
+        setTransmissionComplete(true);
+
+        // Reset form after success animation
+        setTimeout(() => {
+          setFormData({ name: '', email: '', subject: '', message: '' });
+          setTransmissionComplete(false);
+        }, 3000);
+      } else {
+        throw new Error(data.error || 'Failed to send message');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
       setIsTransmitting(false);
-      setTransmissionComplete(true);
+      setTransmissionError(error.message);
 
-      // Reset form after success animation
+      // Clear error after 5 seconds
       setTimeout(() => {
-        setFormData({ name: '', email: '', subject: '', message: '' });
-        setTransmissionComplete(false);
-      }, 3000);
-    }, 2000);
+        setTransmissionError(null);
+      }, 5000);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -226,7 +283,7 @@ const Contact = () => {
 
               <button
                 type="submit"
-                className={`submit-btn ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : ''}`}
+                className={`submit-btn ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : transmissionError ? 'error' : ''}`}
                 disabled={isTransmitting}
               >
                 {isTransmitting ? (
@@ -238,6 +295,10 @@ const Contact = () => {
                   <>
                     <Zap className="btn-icon" />
                     <span>Transmission Successful</span>
+                  </>
+                ) : transmissionError ? (
+                  <>
+                    <span>❌ {transmissionError}</span>
                   </>
                 ) : (
                   <>

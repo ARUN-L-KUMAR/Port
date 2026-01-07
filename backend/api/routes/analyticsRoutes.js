@@ -10,6 +10,8 @@ router.post('/analytics/heartbeat', analyticsController.heartbeat);
 
 // Protected routes - admin only
 router.get('/analytics/stats', adminAuth, analyticsController.getStats);
+router.get('/analytics/extended-stats', adminAuth, analyticsController.getExtendedStats);
+router.get('/analytics/top-projects', adminAuth, analyticsController.getTopProjects);
 router.get('/analytics/visitors', adminAuth, analyticsController.getVisitors);
 router.get('/analytics/live', adminAuth, analyticsController.getLiveCount);
 router.get('/analytics/events', adminAuth, analyticsController.getEvents);
