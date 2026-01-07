@@ -9,10 +9,6 @@ This is a fullstack portfolio application built with modern web technologies.
 - **UI Components**: Radix UI, Shadcn UI
 - **Build Tool**: CRACO (Create React App Configuration Override)
 - **Package Manager**: Yarn
-- **Project documentation improved.**
-Collaboration enhancement.
-YOLO badge unlocked.
-
 
 ## 📁 Project Structure
 
