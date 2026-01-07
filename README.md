@@ -11,6 +11,8 @@ This is a fullstack portfolio application built with modern web technologies.
 - **Package Manager**: Yarn
 - **Project documentation improved.**
 Collaboration enhancement.
+YOLO badge unlocked.
+
 
 ## 📁 Project Structure
 
