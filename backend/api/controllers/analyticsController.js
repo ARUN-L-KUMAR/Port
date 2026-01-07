@@ -49,7 +49,10 @@ const parseReferrer = (referrer) => {
     if (!referrer) return 'Direct';
 
     const url = referrer.toLowerCase();
-    if (url.includes('linkedin.com')) return 'LinkedIn';
+    // LinkedIn detection - includes mobile app package names
+    if (url.includes('linkedin.com') || url.includes('linkedin.android') || url.includes('com.linkedin')) {
+        return 'LinkedIn';
+    }
     if (url.includes('google.com')) return 'Google';
     if (url.includes('github.com')) return 'GitHub';
     if (url.includes('twitter.com') || url.includes('x.com')) return 'Twitter/X';
