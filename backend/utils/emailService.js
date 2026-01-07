@@ -1,91 +1,75 @@
-const nodemailer = require('nodemailer');
+// EmailJS-based email service (works on Render free tier)
+const EMAILJS_SERVICE_ID = process.env.EMAILJS_SERVICE_ID || 'service_ouq955n';
+const EMAILJS_TEMPLATE_ID = process.env.EMAILJS_TEMPLATE_ID || 'template_py4y9co';
+const EMAILJS_PUBLIC_KEY = process.env.EMAILJS_PUBLIC_KEY || 'N7fgACS-m8PSrnVJo';
 
-// Create transporter (configure only if email credentials are provided)
-let transporter = null;
+let isConfigured = false;
 
 const initializeTransporter = () => {
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
-        console.log('📧 Email service initialized');
+    if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY) {
+        isConfigured = true;
+        console.log('📧 EmailJS service initialized');
     } else {
-        console.log('📧 Email service not configured (EMAIL_USER/EMAIL_PASS missing)');
+        console.log('📧 EmailJS not fully configured (missing SERVICE_ID, TEMPLATE_ID, or PUBLIC_KEY)');
     }
 };
 
 const sendLinkedInVisitorNotification = async (visitorData) => {
-    console.log('📧 Attempting to send LinkedIn notification...');
-    console.log('📧 Visitor data:', JSON.stringify(visitorData, null, 2));
+    console.log('📧 Attempting to send LinkedIn notification via EmailJS...');
 
-    if (!transporter) {
-        console.log('❌ Email not sent - transporter not initialized');
-        console.log('   EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'NOT SET');
-        console.log('   EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'NOT SET');
+    if (!isConfigured) {
+        console.log('❌ Email not sent - EmailJS not configured');
         return false;
     }
-
-    const notifyEmail = process.env.NOTIFY_EMAIL;
-    if (!notifyEmail) {
-        console.log('❌ Email not sent - NOTIFY_EMAIL not configured');
-        return false;
-    }
-
-    console.log('📧 Sending to:', notifyEmail);
 
     const { country, city, device, browser, timestamp } = visitorData;
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: notifyEmail,
-        subject: '🔔 LinkedIn Visitor on Your Portfolio!',
-        html: `
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%); color: #fff; padding: 30px; border-radius: 15px;">
-        <h1 style="color: #00ff88; text-align: center; margin-bottom: 30px;">
-          🚀 New Visitor from LinkedIn!
-        </h1>
-        
-        <div style="background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-          <h2 style="color: #00ff88; margin-top: 0;">Visitor Details</h2>
-          <table style="width: 100%; color: #fff;">
-            <tr>
-              <td style="padding: 8px 0; color: #888;">📍 Location:</td>
-              <td style="padding: 8px 0;">${city || 'Unknown'}, ${country || 'Unknown'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; color: #888;">💻 Device:</td>
-              <td style="padding: 8px 0;">${device || 'Unknown'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; color: #888;">🌐 Browser:</td>
-              <td style="padding: 8px 0;">${browser || 'Unknown'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px 0; color: #888;">🕐 Time:</td>
-              <td style="padding: 8px 0;">${new Date(timestamp).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</td>
-            </tr>
-          </table>
-        </div>
-        
-        <p style="color: #888; text-align: center; margin-top: 30px; font-size: 12px;">
-          This notification was sent from your Portfolio Analytics System
-        </p>
-      </div>
-    `
+    // Format timestamp for display
+    const formattedTime = new Date(timestamp).toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    });
+
+    // EmailJS template parameters (must match your template variables)
+    const templateParams = {
+        country: country || 'Unknown',
+        city: city || 'Unknown',
+        device: device || 'Unknown',
+        browser: browser || 'Unknown',
+        timestamp: formattedTime,
+        // Add these in case your template uses different names
+        location: `${city || 'Unknown'}, ${country || 'Unknown'}`,
+        time: formattedTime
     };
 
+    console.log('📧 Template params:', JSON.stringify(templateParams, null, 2));
+
     try {
-        const result = await transporter.sendMail(mailOptions);
-        console.log('✅ LinkedIn visitor notification sent!');
-        console.log('   Message ID:', result.messageId);
-        return true;
+        // EmailJS REST API
+        const response = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                service_id: EMAILJS_SERVICE_ID,
+                template_id: EMAILJS_TEMPLATE_ID,
+                user_id: EMAILJS_PUBLIC_KEY,
+                template_params: templateParams
+            })
+        });
+
+        if (response.ok) {
+            console.log('✅ LinkedIn visitor notification sent via EmailJS!');
+            return true;
+        } else {
+            const errorText = await response.text();
+            console.error('❌ EmailJS API error:', response.status, errorText);
+            return false;
+        }
     } catch (error) {
-        console.error('❌ Failed to send email:', error.message);
-        console.error('   Full error:', error);
+        console.error('❌ Failed to send email via EmailJS:', error.message);
         return false;
     }
 };
