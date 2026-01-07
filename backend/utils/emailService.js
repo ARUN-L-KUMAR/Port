@@ -19,16 +19,23 @@ const initializeTransporter = () => {
 };
 
 const sendLinkedInVisitorNotification = async (visitorData) => {
+    console.log('📧 Attempting to send LinkedIn notification...');
+    console.log('📧 Visitor data:', JSON.stringify(visitorData, null, 2));
+
     if (!transporter) {
-        console.log('Email not sent - transporter not initialized');
+        console.log('❌ Email not sent - transporter not initialized');
+        console.log('   EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'NOT SET');
+        console.log('   EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'NOT SET');
         return false;
     }
 
     const notifyEmail = process.env.NOTIFY_EMAIL;
     if (!notifyEmail) {
-        console.log('Email not sent - NOTIFY_EMAIL not configured');
+        console.log('❌ Email not sent - NOTIFY_EMAIL not configured');
         return false;
     }
+
+    console.log('📧 Sending to:', notifyEmail);
 
     const { country, city, device, browser, timestamp } = visitorData;
 
@@ -72,11 +79,13 @@ const sendLinkedInVisitorNotification = async (visitorData) => {
     };
 
     try {
-        await transporter.sendMail(mailOptions);
-        console.log('📧 LinkedIn visitor notification sent!');
+        const result = await transporter.sendMail(mailOptions);
+        console.log('✅ LinkedIn visitor notification sent!');
+        console.log('   Message ID:', result.messageId);
         return true;
     } catch (error) {
-        console.error('Failed to send email:', error.message);
+        console.error('❌ Failed to send email:', error.message);
+        console.error('   Full error:', error);
         return false;
     }
 };

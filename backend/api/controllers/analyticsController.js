@@ -50,7 +50,7 @@ const parseReferrer = (referrer) => {
 
     const url = referrer.toLowerCase();
     // LinkedIn detection - includes mobile app package names
-    if (url.includes('linkedin.com') || url.includes('linkedin.android') || url.includes('com.linkedin')) {
+    if (url.includes('linkedin.com') || url.includes('linkedin.android') || url.includes('com.linkedin.android') || url.includes('com.linkedin')) {
         return 'LinkedIn';
     }
     if (url.includes('google.com')) return 'Google';
@@ -125,7 +125,9 @@ exports.trackVisit = async (req, res) => {
         }
 
         // Send email notification if visitor is from LinkedIn
+        console.log(`Visitor source detected: ${source} (referrer: ${referrer})`);
         if (source === 'LinkedIn') {
+            console.log('🔔 LinkedIn visitor detected! Sending email notification...');
             sendLinkedInVisitorNotification(visitData).catch(err => {
                 console.error('Email notification failed:', err.message);
             });
