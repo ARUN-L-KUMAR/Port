@@ -10,6 +10,7 @@ This is a fullstack portfolio application built with modern web technologies.
 - **Build Tool**: CRACO (Create React App Configuration Override)
 - **Package Manager**: Yarn
 - **Project documentation improved.**
+Collaboration enhancement.
 
 ## 📁 Project Structure
 
