@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { portfolioData } from '../data/mock';
 import { ExternalLink, Github, Play, Code, Zap, Database, Monitor, Palette, Link, Calendar, Building, ChevronDown, ChevronUp } from 'lucide-react';
+import useAnalytics from '../hooks/useAnalytics';
 
 const Projects = () => {
+  const { trackEvent } = useAnalytics();
   const [hoveredProject, setHoveredProject] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -406,14 +408,26 @@ const Projects = () => {
                       {/* Action Buttons */}
                       <div className="project-actions">
                         {project.demoUrl && (
-                          <a href={project.demoUrl} target="_blank" rel="noopener noreferrer" className="action-btn primary">
+                          <a
+                            href={project.demoUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="action-btn primary"
+                            onClick={() => trackEvent('project_click', { projectName: project.title, action: 'demo' })}
+                          >
                             <ExternalLink className="btn-icon" />
                             <span>Live Demo</span>
                             <div className="btn-glow"></div>
                           </a>
                         )}
                         {project.githubUrl && (
-                          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="action-btn secondary">
+                          <a
+                            href={project.githubUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="action-btn secondary"
+                            onClick={() => trackEvent('project_click', { projectName: project.title, action: 'github' })}
+                          >
                             <Github className="btn-icon" />
                             <span>Source</span>
                             <div className="btn-glow"></div>

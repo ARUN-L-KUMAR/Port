@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { portfolioData } from '../data/mock';
 import { ArrowDown, Terminal, Cpu, Zap } from 'lucide-react';
 import HoloBadge from './HoloBadge';
+import LetterGlitch from './ui/Letter-Glitch'
 
 // Detect if should skip heavy animations
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -44,7 +45,11 @@ const Hero = () => {
   };
 
   return (
+
+
     <div ref={heroRef} className="hero-container" id="hero">
+
+
       {/* Background Grid - CSS only, lightweight */}
       <div className="holographic-grid"></div>
 
@@ -52,6 +57,8 @@ const Hero = () => {
       <div className="holo-badge-wrapper desktop-only">
         <HoloBadge isLarge={true} />
       </div>
+
+
 
       {/* Main Content */}
       <div className="hero-content">
@@ -69,7 +76,7 @@ const Hero = () => {
 
           {/* Name Display - hidden on mobile (shown in badge) */}
           <div className="name-container desktop-only">
-          <h1 className="hero">ARUN.L.KUMAR</h1>
+            <h1 className="hero">ARUN.L.KUMAR</h1>
             <h1 className="hero-name">
               {displayText}
               <span className="cursor-blink">|</span>
@@ -133,8 +140,8 @@ const Hero = () => {
               <div className="status-dot active"></div>
               <span>Open to Collaborations</span>
               <p className="seo-anchor">
- ARUN.L.KUMAR is, a Full Stack Developer and UI/UX Designer specializing in modern web applications.
-</p>
+                ARUN.L.KUMAR is, a Full Stack Developer and UI/UX Designer specializing in modern web applications.
+              </p>
             </div>
           </div>
         </div>
