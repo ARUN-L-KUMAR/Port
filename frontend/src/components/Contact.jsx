@@ -181,137 +181,7 @@ const Contact = () => {
 
         {/* Main Contact Grid */}
         <div className="contact-grid">
-          {/* Contact Form */}
-          <div className="contact-form-section">
-            <div className="form-header">
-              <div className="form-title">
-                <Send className="form-icon" />
-                <span>Transmission Interface</span>
-              </div>
-
-              <div className="form-status">
-                <div className={`status-light ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : 'ready'}`}></div>
-                <span>
-                  {isTransmitting ? 'Transmitting...' :
-                    transmissionComplete ? 'Transmission Complete' : 'Ready to Send'}
-                </span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="contact-form">
-              <div className="form-grid">
-                <div className="input-group">
-                  <label htmlFor="name" className="input-label">
-                    <span className="label-text">Identity</span>
-                    <span className="label-required">*</span>
-                  </label>
-                  <div className="input-wrapper">
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      placeholder="Enter your designation"
-                      required
-                    />
-                    <div className="input-glow"></div>
-                  </div>
-                </div>
-
-                <div className="input-group">
-                  <label htmlFor="email" className="input-label">
-                    <span className="label-text">Communication Channel</span>
-                    <span className="label-required">*</span>
-                  </label>
-                  <div className="input-wrapper">
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="form-input"
-                      placeholder="your.email@domain.com"
-                      required
-                    />
-                    <div className="input-glow"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="subject" className="input-label">
-                  <span className="label-text">Mission Subject</span>
-                  <span className="label-required">*</span>
-                </label>
-                <div className="input-wrapper">
-                  <input
-                    type="text"
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleInputChange}
-                    className="form-input"
-                    placeholder="Project collaboration, consultancy, or general inquiry"
-                    required
-                  />
-                  <div className="input-glow"></div>
-                </div>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="message" className="input-label">
-                  <span className="label-text">Data Payload</span>
-                  <span className="label-required">*</span>
-                </label>
-                <div className="input-wrapper">
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    className="form-textarea"
-                    placeholder="Transmit your message here..."
-                    rows="6"
-                    required
-                  ></textarea>
-                  <div className="input-glow"></div>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className={`submit-btn ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : transmissionError ? 'error' : ''}`}
-                disabled={isTransmitting}
-              >
-                {isTransmitting ? (
-                  <>
-                    <div className="loading-spinner"></div>
-                    <span>Transmitting Data...</span>
-                  </>
-                ) : transmissionComplete ? (
-                  <>
-                    <Zap className="btn-icon" />
-                    <span>Transmission Successful</span>
-                  </>
-                ) : transmissionError ? (
-                  <>
-                    <span>❌ {transmissionError}</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="btn-icon" />
-                    <span>Initialize Transmission</span>
-                  </>
-                )}
-                <div className="btn-scanner"></div>
-              </button>
-            </form>
-          </div>
-
-          {/* Contact Information */}
+          {/* Left Column - Contact Information */}
           <div className="contact-info-section">
             <div className="info-header">
               <div className="info-title">
@@ -394,6 +264,139 @@ const Contact = () => {
                 <span>Download Resume</span>
                 <div className="btn-glow"></div>
               </a>
+            </div>
+          </div>
+
+          {/* Right Column - Form and System Status */}
+          <div className="contact-right-column">
+            {/* Contact Form */}
+            <div className="contact-form-section">
+              <div className="form-header">
+                <div className="form-title">
+                  <Send className="form-icon" />
+                  <span>Transmission Interface</span>
+                </div>
+
+                <div className="form-status">
+                  <div className={`status-light ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : 'ready'}`}></div>
+                  <span>
+                    {isTransmitting ? 'Transmitting...' :
+                      transmissionComplete ? 'Transmission Complete' : 'Ready to Send'}
+                  </span>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="contact-form">
+                <div className="form-grid">
+                  <div className="input-group">
+                    <label htmlFor="name" className="input-label">
+                      <span className="label-text">Identity</span>
+                      <span className="label-required">*</span>
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="Enter your designation"
+                        required
+                      />
+                      <div className="input-glow"></div>
+                    </div>
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="email" className="input-label">
+                      <span className="label-text">Communication Channel</span>
+                      <span className="label-required">*</span>
+                    </label>
+                    <div className="input-wrapper">
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="form-input"
+                        placeholder="your.email@domain.com"
+                        required
+                      />
+                      <div className="input-glow"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="subject" className="input-label">
+                    <span className="label-text">Mission Subject</span>
+                    <span className="label-required">*</span>
+                  </label>
+                  <div className="input-wrapper">
+                    <input
+                      type="text"
+                      id="subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      className="form-input"
+                      placeholder="Project collaboration, consultancy, or general inquiry"
+                      required
+                    />
+                    <div className="input-glow"></div>
+                  </div>
+                </div>
+
+                <div className="input-group">
+                  <label htmlFor="message" className="input-label">
+                    <span className="label-text">Data Payload</span>
+                    <span className="label-required">*</span>
+                  </label>
+                  <div className="input-wrapper">
+                    <textarea
+                      id="message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      className="form-textarea"
+                      placeholder="Transmit your message here..."
+                      rows="6"
+                      required
+                    ></textarea>
+                    <div className="input-glow"></div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className={`submit-btn ${isTransmitting ? 'transmitting' : transmissionComplete ? 'success' : transmissionError ? 'error' : ''}`}
+                  disabled={isTransmitting}
+                >
+                  {isTransmitting ? (
+                    <>
+                      <div className="loading-spinner"></div>
+                      <span>Transmitting Data...</span>
+                    </>
+                  ) : transmissionComplete ? (
+                    <>
+                      <Zap className="btn-icon" />
+                      <span>Transmission Successful</span>
+                    </>
+                  ) : transmissionError ? (
+                    <>
+                      <span>❌ {transmissionError}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="btn-icon" />
+                      <span>Initialize Transmission</span>
+                    </>
+                  )}
+                  <div className="btn-scanner"></div>
+                </button>
+              </form>
             </div>
 
             {/* System Status */}

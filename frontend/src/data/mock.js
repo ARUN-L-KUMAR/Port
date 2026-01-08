@@ -474,7 +474,7 @@ export const portfolioData = {
     social: [
       { platform: "GitHub", url: "https://github.com/ARUN-L-KUMAR", icon: "github" },
       { platform: "LinkedIn", url: "https://linkedin.com/in/arun-kumar-l", icon: "linkedin" },
-      { platform: "Portfolio", url: "https://arun-l-kumar.vercel.app/", icon: "link" }
+      { platform: "Portfolio", url: "https://a-k-l.vercel.app/", icon: "link" }
     ]
   }
 };

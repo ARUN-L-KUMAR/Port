@@ -931,11 +931,14 @@
   }
 
   .skills-display {
-    min-height: 400px;
+    height: 400px;
+    /* Fixed height for mobile with scrolling */
   }
 
   .skills-grid {
-    max-height: calc(400px - 60px);
+    height: calc(400px - 60px);
+    /* Fixed height for scroll container */
+    overflow-y: auto;
     padding: 20px;
     gap: 20px;
     grid-template-columns: 1fr;
@@ -1078,11 +1081,14 @@
   }
 
   .skills-display {
-    min-height: 350px;
+    height: 350px;
+    /* Fixed height for small mobile */
   }
 
   .skills-grid {
-    max-height: calc(350px - 50px);
+    height: calc(350px - 50px);
+    /* Fixed height for scroll container */
+    overflow-y: auto;
     padding: 15px;
     gap: 15px;
   }
