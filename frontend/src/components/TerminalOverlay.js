@@ -204,30 +204,30 @@ const TacticalGauge = ({ value, label }) => {
 
 // Recreated Data Stream component for professional system-log appearance
 const DataStream = () => {
-  const [data, setData] = useState(() => {
-    // Better initial pool of logs
-    return Array.from({ length: 15 }, (_, i) => {
-      const ports = [80, 443, 8080, 22, 53];
-      const port = ports[Math.floor(Math.random() * ports.length)];
-      const ip = `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
-      return `INBOUND_TCP: ${ip}:${port} > HANDSHAKE_OK`;
-    });
-  });
+  const [data, setData] = useState([
+    '> TCP_ALLOW  192.168.1.42:443',
+    '> SSL_SYNC   0xA3F2 :: 12847b',
+    '> DNS_ROUTE  0xB8C1 :: 5312b',
+    '> SSH_FILTER 10.0.0.1:22',
+    '> UDP_BYPASS 0xD4E7 :: 8192b',
+  ]);
 
   useEffect(() => {
     const protocols = ['TCP', 'UDP', 'HTTP', 'SSL', 'SSH', 'DNS'];
     const actions = ['ALLOW', 'REJECT', 'BYPASS', 'FILTER', 'ROUTE', 'SYNC'];
+    const ips = ['192.168.1.', '10.0.0.', '172.16.0.'];
 
     const interval = setInterval(() => {
       const proto = protocols[Math.floor(Math.random() * protocols.length)];
       const action = actions[Math.floor(Math.random() * actions.length)];
       const hex = Math.random().toString(16).substring(2, 6).toUpperCase();
-      const bytes = Math.floor(Math.random() * 65535);
+      const bytes = (Math.floor(Math.random() * 60) + 1) * 512;
+      const ip = ips[Math.floor(Math.random() * ips.length)];
+      const last = Math.floor(Math.random() * 254) + 1;
 
-      const line = `${proto}_${action} [PID:${hex}] :: ${bytes} bytes processed`;
-
-      setData(prev => [line, ...prev].slice(0, 18));
-    }, 200);
+      const line = `> ${proto}_${action}  ${ip}${last} :: ${bytes}b`;
+      setData(prev => [line, ...prev].slice(0, 7));
+    }, 700);
     return () => clearInterval(interval);
   }, []);
 
@@ -235,8 +235,7 @@ const DataStream = () => {
     <div className="cyber-data-stream">
       {data.map((line, i) => (
         <div key={i} className="stream-line">
-          <span className="line-prefix">0{Math.floor(Math.random() * 9)}</span>
-          <span className="line-content">{line}</span>
+          {line}
         </div>
       ))}
     </div>
