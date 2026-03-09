@@ -48,7 +48,7 @@ const MatrixEffect = ({ color = '#00FF41' }) => {
       }
     };
 
-    const interval = setInterval(draw, 80); // Slower update cycle
+    const interval = setInterval(draw, 70); // Slower update cycle
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
@@ -376,7 +376,7 @@ const TerminalOverlay = ({ isVisible, autoStart = false, onComplete }) => {
                   }, 800);
                 }
                 setProgress(p);
-              }, 77); // 77ms × 100 steps = 7700ms (7.7s)
+              }, 80); // 80ms × 100 steps = 8000ms (8s)
             }, 1000);
           }
         };
