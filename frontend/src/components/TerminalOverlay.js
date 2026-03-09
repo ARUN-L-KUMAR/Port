@@ -376,13 +376,13 @@ const TerminalOverlay = ({ isVisible, autoStart = false, onComplete }) => {
                   }, 800);
                 }
                 setProgress(p);
-              }, 90); // 90ms × 100 steps = 9000ms (9s tactical)
+              }, 80); // 90ms × 100 steps = 9000ms (9s tactical)
             }, 1000);
           }
         };
 
         runBoot();
-      }, 3000); // 3 second boot opening lead-in
+      }, 2500); // 3 second boot opening lead-in
 
       return () => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
