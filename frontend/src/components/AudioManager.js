@@ -19,9 +19,17 @@ const AUDIO_FILES = {
     [AUDIO_STATES.HOME]: '/audio/home_bg.mp3'
 };
 
+// Max volumes per state: home_bg is quieter
+const AUDIO_VOLUMES = {
+    [AUDIO_STATES.BOOT]: 0.45,
+    [AUDIO_STATES.HUD]: 0.45,
+    [AUDIO_STATES.SUCCESS]: 0.45,
+    [AUDIO_STATES.HOME]: 0.22, // Lower volume for home bg
+};
+
 export const AudioManager = ({ children }) => {
     const [audioState, setAudioState] = useState(AUDIO_STATES.OFF);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(true); // Track play/pause state
     const audioRef = useRef(new Audio());
 
     useEffect(() => {
@@ -34,31 +42,34 @@ export const AudioManager = ({ children }) => {
             const source = AUDIO_FILES[audioState];
             if (!source) return;
 
-            // If same source is already playing, don't restart
-            if (audioRef.current.src.endsWith(source) && !audioRef.current.paused) {
-                return;
-            }
+            const maxVolume = AUDIO_VOLUMES[audioState] || 0.45;
+            const shouldLoop = audioState === AUDIO_STATES.HOME; // Only home loops
 
             const startPlaying = () => {
                 audioRef.current.src = source;
-                audioRef.current.loop = false; // play once only
-                audioRef.current.volume = isMuted ? 0 : 0;
+                audioRef.current.loop = shouldLoop;
+                audioRef.current.volume = 0; // Start silent for fade-in
 
                 audioRef.current.play().catch(err => {
                     console.warn("Audio play blocked.", err);
                 });
 
-                // Fade in
+                // Fade in to the correct max volume
                 let fadeInInterval = setInterval(() => {
-                    if (audioRef.current.volume < 0.45 && !isMuted) {
-                        audioRef.current.volume += 0.05;
+                    if (audioRef.current.volume < maxVolume - 0.05 && isPlaying) {
+                        audioRef.current.volume = Math.min(audioRef.current.volume + 0.05, maxVolume);
                     } else {
+                        audioRef.current.volume = maxVolume;
                         clearInterval(fadeInInterval);
                     }
                 }, 80);
             };
 
             try {
+                // If same source is already playing, don't restart
+                if (audioRef.current.src.endsWith(source) && !audioRef.current.paused) {
+                    return;
+                }
                 // If nothing is playing, start immediately (no fade-out needed)
                 if (audioRef.current.paused || !audioRef.current.src) {
                     startPlaying();
@@ -80,35 +91,38 @@ export const AudioManager = ({ children }) => {
         };
 
         playAudio();
+    }, [audioState]);
 
-        return () => {
-            audioRef.current.pause();
-        };
-    }, [audioState, isMuted]);
-
-    const toggleMute = useCallback(() => {
-        setIsMuted(prev => {
+    // Toggle: pause/resume — does NOT restart from beginning
+    const togglePlayPause = useCallback(() => {
+        setIsPlaying(prev => {
             const next = !prev;
-            audioRef.current.volume = next ? 0 : 0.5;
+            if (next) {
+                // Resume from where it stopped
+                audioRef.current.play().catch(err => console.warn("Play blocked:", err));
+            } else {
+                // Pause (keeps position)
+                audioRef.current.pause();
+            }
             return next;
         });
     }, []);
 
     const value = useMemo(() => ({
         setAudioState,
-        toggleMute,
-        isMuted,
+        togglePlayPause,
+        isPlaying,
         audioState
-    }), [audioState, isMuted, toggleMute]);
+    }), [audioState, isPlaying, togglePlayPause]);
 
     return (
         <AudioContext.Provider value={value}>
             {children}
-            {/* Mute Toggle UI Placeholder */}
+            {/* Play/Pause Toggle UI */}
             <div className="audio-controls" style={{
                 position: 'fixed',
                 bottom: '20px',
-                right: '25px', // Adjusted position
+                right: '25px',
                 zIndex: 100000,
                 cursor: 'pointer',
                 background: 'rgba(0,0,0,0.6)',
@@ -123,10 +137,10 @@ export const AudioManager = ({ children }) => {
                 color: '#00FF41',
                 boxShadow: '0 0 15px rgba(0,255,65,0.4)',
                 transition: 'all 0.3s ease'
-            }} onClick={toggleMute}
+            }} onClick={togglePlayPause}
                 onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 0 25px #00FF41'}
                 onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 0 15px rgba(0,255,65,0.4)'}>
-                {isMuted ? '🔇' : '🔊'}
+                {isPlaying ? '🔊' : '🔇'}
             </div>
         </AudioContext.Provider>
     );
