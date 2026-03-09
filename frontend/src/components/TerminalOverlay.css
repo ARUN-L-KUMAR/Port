@@ -1775,8 +1775,13 @@
 }
 
 .theme-red .hud-scanline {
-    background: linear-gradient(to right, transparent, rgba(255, 17, 68, 0.2), transparent);
-    box-shadow: 0 0 15px rgba(255, 17, 68, 0.4);
+    background: linear-gradient(to bottom,
+            transparent,
+            transparent 50%,
+            rgba(255, 17, 68, 0.3) 50%,
+            rgba(255, 17, 68, 0.3) 51%,
+            transparent 51%,
+            transparent);
 }
 
 .main-breach-display,
