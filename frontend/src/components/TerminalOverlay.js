@@ -48,7 +48,7 @@ const MatrixEffect = ({ color = '#00FF41' }) => {
       }
     };
 
-    const interval = setInterval(draw, 70); // Slower update cycle
+    const interval = setInterval(draw, 80); // Slower update cycle
 
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
