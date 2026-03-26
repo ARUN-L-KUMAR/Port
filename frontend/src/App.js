@@ -5,6 +5,8 @@ import About from './components/About';
 import Projects from './components/Projects';
 import Skills from './components/Skills';
 import Contact from './components/Contact';
+import AdminAnalytics from './components/admin/AdminAnalytics';
+import { useAudio, AUDIO_STATES } from './components/AudioManager';
 import './components/MobileStyles.css';
 
 // Lazy load background effects for better initial performance
@@ -18,6 +20,13 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const App = () => {
   const [showTerminal, setShowTerminal] = useState(!prefersReducedMotion);
   const [terminalComplete, setTerminalComplete] = useState(false);
+  const { setAudioState } = useAudio();
+
+  useEffect(() => {
+    if (terminalComplete || !showTerminal) {
+      setAudioState(AUDIO_STATES.HOME);
+    }
+  }, [terminalComplete, showTerminal, setAudioState]);
 
   const handleTerminalComplete = () => {
     setTimeout(() => {
@@ -221,6 +230,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Portfolio />} />
+          <Route path="/adminanalytics" element={<AdminAnalytics />} />
         </Routes>
       </BrowserRouter>
     </div>
