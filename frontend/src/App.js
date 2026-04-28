@@ -18,10 +18,26 @@ const TerminalBackground = lazy(() => import('./components/TerminalBackground'))
 // Detect device capabilities
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const TERMINAL_BOOT_KEY = 'terminal_boot_seen';
+
+const hasSeenTerminalBoot = () => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return sessionStorage.getItem(TERMINAL_BOOT_KEY) === 'true';
+  } catch (error) {
+    return false;
+  }
+};
 
 const App = () => {
-  const [showTerminal, setShowTerminal] = useState(!prefersReducedMotion);
-  const [terminalComplete, setTerminalComplete] = useState(false);
+  const [showTerminal, setShowTerminal] = useState(() => {
+    if (prefersReducedMotion) return false;
+    return !hasSeenTerminalBoot();
+  });
+  const [terminalComplete, setTerminalComplete] = useState(() => {
+    if (prefersReducedMotion) return true;
+    return hasSeenTerminalBoot();
+  });
   const { setAudioState } = useAudio();
 
   useEffect(() => {
@@ -213,6 +229,16 @@ const App = () => {
   const RouteShell = () => {
     const location = useLocation();
     const isAdminRoute = location.pathname.startsWith('/admin-analytics');
+
+    useEffect(() => {
+      if (isAdminRoute) return;
+      if (!showTerminal || terminalComplete) return;
+      try {
+        sessionStorage.setItem(TERMINAL_BOOT_KEY, 'true');
+      } catch (error) {
+        // Ignore storage errors
+      }
+    }, [isAdminRoute, showTerminal, terminalComplete]);
 
     return (
       <>
