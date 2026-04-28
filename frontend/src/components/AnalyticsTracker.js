@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import useAnalytics from '../hooks/useAnalytics';
 
@@ -9,6 +9,7 @@ import useAnalytics from '../hooks/useAnalytics';
 const AnalyticsTracker = () => {
     const { sessionId, trackEvent } = useAnalytics();
     const location = useLocation();
+    const trackedSections = useRef(new Set());
 
     useEffect(() => {
         // Log for debugging
@@ -25,6 +26,40 @@ const AnalyticsTracker = () => {
                 title: document.title
             });
         }
+    }, [location.pathname, trackEvent]);
+
+    useEffect(() => {
+        trackedSections.current.clear();
+    }, [location.pathname]);
+
+    useEffect(() => {
+        if (!trackEvent) return undefined;
+
+        const sectionIds = ['hero', 'about', 'projects', 'skills', 'contact'];
+        const sectionElements = sectionIds
+            .map((id) => document.getElementById(id))
+            .filter(Boolean);
+
+        if (sectionElements.length === 0) return undefined;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                const sectionId = entry.target.id;
+                if (!sectionId || trackedSections.current.has(sectionId)) return;
+
+                trackedSections.current.add(sectionId);
+                trackEvent('section_view', {
+                    section: sectionId,
+                    path: location.pathname,
+                    title: document.title
+                });
+            });
+        }, { threshold: 0.5 });
+
+        sectionElements.forEach((el) => observer.observe(el));
+
+        return () => observer.disconnect();
     }, [location.pathname, trackEvent]);
 
     // This component renders nothing

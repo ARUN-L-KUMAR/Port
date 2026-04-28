@@ -3,11 +3,13 @@ import { portfolioData } from '../data/mock';
 import { ArrowDown, Terminal, Cpu, Zap } from 'lucide-react';
 import HoloBadge from './HoloBadge';
 import LetterGlitch from './ui/Letter-Glitch'
+import useAnalytics from '../hooks/useAnalytics';
 
 // Detect if should skip heavy animations
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const Hero = () => {
+  const { trackEvent } = useAnalytics();
   const [displayText, setDisplayText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
@@ -31,6 +33,7 @@ const Hero = () => {
 
   // Handle button clicks - scroll to sections
   const handleProjectsClick = () => {
+    trackEvent('button_click', { label: 'Hero: Projects', target: '#projects' });
     const projectsSection = document.querySelector('#projects');
     if (projectsSection) {
       projectsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -38,6 +41,7 @@ const Hero = () => {
   };
 
   const handleContactClick = () => {
+    trackEvent('button_click', { label: 'Hero: Contact', target: '#contact' });
     const contactSection = document.querySelector('#contact');
     if (contactSection) {
       contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });

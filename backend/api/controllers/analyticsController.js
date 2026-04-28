@@ -7,6 +7,61 @@ const activeSessions = new Map();
 
 // Session timeout (1 minute without heartbeat = inactive)
 const SESSION_TIMEOUT = 60000;
+const EMAIL_ALERTS_ENABLED = process.env.ANALYTICS_EMAIL_ALERTS === 'true';
+
+let analyticsEnabled = true;
+let analyticsAllowDev = process.env.ANALYTICS_ALLOW_DEV === 'true';
+let analyticsSettingsLoaded = false;
+let analyticsSettingsLoading = null;
+let analyticsSettingsUpdatedAt = null;
+
+const loadAnalyticsSettings = async () => {
+    const db = getDatabase();
+    if (!db) return false;
+    if (analyticsSettingsLoaded) return true;
+    if (analyticsSettingsLoading) return analyticsSettingsLoading;
+
+    analyticsSettingsLoading = (async () => {
+        try {
+            const settings = await db.collection('settings').findOne({ key: 'analytics' });
+            if (settings) {
+                if (typeof settings.enabled === 'boolean') analyticsEnabled = settings.enabled;
+                if (typeof settings.allowDev === 'boolean') analyticsAllowDev = settings.allowDev;
+                if (settings.updatedAt) analyticsSettingsUpdatedAt = settings.updatedAt;
+            }
+            analyticsSettingsLoaded = true;
+            return true;
+        } catch (error) {
+            console.error('Failed to load analytics settings:', error.message);
+            return false;
+        } finally {
+            analyticsSettingsLoading = null;
+        }
+    })();
+
+    return analyticsSettingsLoading;
+};
+
+const isLocalIp = (ip) => {
+    if (!ip) return false;
+    const cleaned = ip.replace('::ffff:', '');
+    if (cleaned === '::1' || cleaned === '127.0.0.1') return true;
+    if (cleaned.startsWith('192.168.') || cleaned.startsWith('10.')) return true;
+    if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(cleaned)) return true;
+    return false;
+};
+
+const isAdminAnalyticsPath = (path) => {
+    if (!path || typeof path !== 'string') return false;
+    return path.startsWith('/admin-analytics');
+};
+
+const shouldIgnoreAnalytics = (ip) => {
+    const allowDev = analyticsAllowDev || process.env.ANALYTICS_ALLOW_DEV === 'true';
+    if (allowDev) return false;
+    if (process.env.NODE_ENV === 'production') return false;
+    return isLocalIp(ip);
+};
 
 // ... (helpers remain the same) ...
 const parseUserAgent = (userAgent) => {
@@ -70,6 +125,7 @@ setInterval(() => {
             // Session expired - check if we should send Exit Report
             const durationSeconds = (session.lastSeen - new Date(session.timestamp).getTime()) / 1000;
             const source = session.referrer;
+            const isAdminSession = isAdminAnalyticsPath(session.path) || (session.pages || []).some((p) => isAdminAnalyticsPath(p.path));
 
             // Criteria for Exit Report: From LinkedIn OR High Engagement (> 2 mins or > 3 pages)
             const shouldSendExitReport =
@@ -77,7 +133,7 @@ setInterval(() => {
                 durationSeconds > 120 ||
                 (session.pages && session.pages.length > 3);
 
-            if (shouldSendExitReport) {
+            if (EMAIL_ALERTS_ENABLED && !isAdminSession && shouldSendExitReport) {
                 console.log(`📊 Generating Exit Report for session ${sessionId} (${source})`);
                 sendExitReportEmail({
                     ...session,
@@ -93,6 +149,7 @@ setInterval(() => {
 // Track a new visit (ENTRY)
 exports.trackVisit = async (req, res) => {
     try {
+        await loadAnalyticsSettings();
         const db = getDatabase();
         const { sessionId: clientSessionId, path, referrer } = req.body;
 
@@ -105,6 +162,15 @@ exports.trackVisit = async (req, res) => {
         const location = await getLocationFromIP(ip);
         const source = parseReferrer(referrer);
         const sessionId = clientSessionId || uuidv4();
+        const isAdminPath = isAdminAnalyticsPath(path);
+
+        if (!analyticsEnabled) {
+            return res.json({ success: true, sessionId, ignored: true, message: 'Analytics paused' });
+        }
+
+        if (shouldIgnoreAnalytics(ip)) {
+            return res.json({ success: true, sessionId, ignored: true, message: 'Visit ignored in dev' });
+        }
 
         const visitData = {
             sessionId,
@@ -141,7 +207,7 @@ exports.trackVisit = async (req, res) => {
             if (db) await db.collection('visits').insertOne(visitData);
 
             // Send Entry Alert for LinkedIn
-            if (source === 'LinkedIn') {
+            if (EMAIL_ALERTS_ENABLED && !isAdminPath && source === 'LinkedIn') {
                 console.log(`🔔 New LinkedIn visitor! Sending Entry Alert...`);
                 sendEntryAlertEmail(visitData).catch(err => console.error('Entry alert failed:', err));
             }
@@ -157,8 +223,21 @@ exports.trackVisit = async (req, res) => {
 // Track custom events & Page Views
 exports.trackEvent = async (req, res) => {
     try {
+        await loadAnalyticsSettings();
         const db = getDatabase();
         const { sessionId, eventType, eventData } = req.body;
+
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] ||
+            req.headers['x-real-ip'] ||
+            req.socket.remoteAddress || 'Unknown';
+
+        if (!analyticsEnabled) {
+            return res.json({ success: true, ignored: true, message: 'Analytics paused' });
+        }
+
+        if (shouldIgnoreAnalytics(ip)) {
+            return res.json({ success: true, ignored: true, message: 'Event ignored in dev' });
+        }
 
         if (!sessionId || !eventType) {
             return res.status(400).json({ success: false, message: 'Missing args' });
@@ -201,7 +280,20 @@ exports.trackEvent = async (req, res) => {
 // Heartbeat to maintain live session
 exports.heartbeat = async (req, res) => {
     try {
+        await loadAnalyticsSettings();
         const { sessionId } = req.body;
+
+        const ip = req.headers['x-forwarded-for']?.split(',')[0] ||
+            req.headers['x-real-ip'] ||
+            req.socket.remoteAddress || 'Unknown';
+
+        if (!analyticsEnabled) {
+            return res.json({ success: true, ignored: true });
+        }
+
+        if (shouldIgnoreAnalytics(ip)) {
+            return res.json({ success: true, ignored: true });
+        }
 
         if (sessionId && activeSessions.has(sessionId)) {
             const session = activeSessions.get(sessionId);
@@ -624,8 +716,12 @@ exports.clearAllData = async (req, res) => {
     try {
         const db = getDatabase();
 
-        // Clear analytics (visitors) collection
-        const analyticsResult = await db.collection('analytics').deleteMany({});
+        if (!db) {
+            return res.status(503).json({ success: false, message: 'Database not connected' });
+        }
+
+        // Clear visits collection
+        const analyticsResult = await db.collection('visits').deleteMany({});
 
         // Clear events collection
         const eventsResult = await db.collection('events').deleteMany({});
@@ -654,4 +750,87 @@ exports.clearAllData = async (req, res) => {
         console.error('Clear all data error:', error);
         res.status(500).json({ success: false, message: 'Failed to clear data' });
     }
+};
+
+exports.getAnalyticsStatus = (req, res) => {
+    loadAnalyticsSettings()
+        .then(() => res.json({
+            success: true,
+            enabled: analyticsEnabled,
+            allowDev: analyticsAllowDev,
+            updatedAt: analyticsSettingsUpdatedAt
+        }))
+        .catch(() => res.json({
+            success: true,
+            enabled: analyticsEnabled,
+            allowDev: analyticsAllowDev,
+            updatedAt: analyticsSettingsUpdatedAt
+        }));
+};
+
+exports.getAnalyticsPublicConfig = (req, res) => {
+    loadAnalyticsSettings()
+        .then(() => res.json({
+            success: true,
+            enabled: analyticsEnabled,
+            allowDev: analyticsAllowDev
+        }))
+        .catch(() => res.json({
+            success: true,
+            enabled: analyticsEnabled,
+            allowDev: analyticsAllowDev
+        }));
+};
+
+exports.setAnalyticsStatus = (req, res) => {
+    const { enabled, allowDev } = req.body || {};
+    if (typeof enabled === 'undefined' && typeof allowDev === 'undefined') {
+        return res.status(400).json({ success: false, message: 'Missing enabled/allowDev flag' });
+    }
+
+    if (typeof enabled !== 'undefined') {
+        const normalized = typeof enabled === 'string' ? enabled.toLowerCase() === 'true' : Boolean(enabled);
+        analyticsEnabled = normalized;
+    }
+
+    if (typeof allowDev !== 'undefined') {
+        const normalizedDev = typeof allowDev === 'string' ? allowDev.toLowerCase() === 'true' : Boolean(allowDev);
+        analyticsAllowDev = normalizedDev;
+    }
+
+    const db = getDatabase();
+    if (!db) {
+        return res.json({ success: true, enabled: analyticsEnabled, allowDev: analyticsAllowDev });
+    }
+
+    db.collection('settings')
+        .updateOne(
+            { key: 'analytics' },
+            {
+                $set: {
+                    enabled: analyticsEnabled,
+                    allowDev: analyticsAllowDev,
+                    updatedAt: new Date()
+                }
+            },
+            { upsert: true }
+        )
+        .then((result) => {
+            analyticsSettingsUpdatedAt = new Date();
+            res.json({
+                success: true,
+                enabled: analyticsEnabled,
+                allowDev: analyticsAllowDev,
+                updatedAt: analyticsSettingsUpdatedAt
+            });
+        })
+        .catch((error) => {
+            console.error('Failed to persist analytics settings:', error.message);
+            res.json({
+                success: true,
+                enabled: analyticsEnabled,
+                allowDev: analyticsAllowDev,
+                updatedAt: analyticsSettingsUpdatedAt
+            });
+        });
 };

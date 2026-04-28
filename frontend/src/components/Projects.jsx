@@ -308,7 +308,13 @@ const Projects = () => {
                       <div className="internship-projects">
                         <div
                           className="projects-toggle-header"
-                          onClick={() => toggleInternshipExpansion(internship.id)}
+                          onClick={() => {
+                            trackEvent('button_click', {
+                              label: 'Internship: Toggle Projects',
+                              company: internship.company
+                            });
+                            toggleInternshipExpansion(internship.id);
+                          }}
                           style={{ cursor: 'pointer' }}
                         >
                           <h4 className="projects-title">Projects Completed:</h4>
@@ -327,7 +333,13 @@ const Projects = () => {
                                   <div className="project-header">
                                     <h5
                                       className="project-title-expanded clickable"
-                                      onClick={() => navigateToProject(proj.title)}
+                                      onClick={() => {
+                                        trackEvent('button_click', {
+                                          label: 'Internship: Jump to Project',
+                                          projectName: proj.title
+                                        });
+                                        navigateToProject(proj.title);
+                                      }}
                                       style={{ cursor: 'pointer' }}
                                     >
                                       {proj.title}
@@ -361,6 +373,7 @@ const Projects = () => {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="action-btn primary project-demo-btn"
+                                        onClick={() => trackEvent('project_click', { projectName: proj.title, action: 'demo' })}
                                       >
                                         <ExternalLink className="btn-icon" />
                                         <span>Live Demo</span>
@@ -373,6 +386,7 @@ const Projects = () => {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="action-btn secondary project-github-btn"
+                                        onClick={() => trackEvent('project_click', { projectName: proj.title, action: 'github' })}
                                       >
                                         <Github className="btn-icon" />
                                         <span>Source Code</span>
@@ -465,7 +479,10 @@ const Projects = () => {
           <div className="load-more-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
             <button
               className="action-btn primary load-more-btn"
-              onClick={handleLoadMore}
+              onClick={() => {
+                trackEvent('button_click', { label: 'Projects: Load More' });
+                handleLoadMore();
+              }}
               style={{
                 padding: '0.8rem 2rem',
                 fontSize: '1rem',

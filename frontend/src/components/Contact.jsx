@@ -14,6 +14,7 @@ import {
   Wifi,
   Download
 } from 'lucide-react';
+import useAnalytics from '../hooks/useAnalytics';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -23,6 +24,7 @@ const EMAILJS_TEMPLATE_ID = 'template_wnm75bf';
 const EMAILJS_PUBLIC_KEY = 'N7fgACS-m8PSrnVJo';
 
 const Contact = () => {
+  const { trackEvent } = useAnalytics();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -75,6 +77,8 @@ const Contact = () => {
       const data = await response.json();
 
       if (response.ok && data.success) {
+        trackEvent('form_submit', { source: 'contact', status: 'success' });
+
         // Send auto-reply to the user via EmailJS (from browser)
         await sendAutoReply(formData);
 
@@ -91,6 +95,7 @@ const Contact = () => {
       }
     } catch (error) {
       console.error('Contact form error:', error);
+      trackEvent('form_submit', { source: 'contact', status: 'error' });
       setIsTransmitting(false);
       setTransmissionError(error.message);
 
@@ -244,6 +249,7 @@ const Contact = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="social-link"
+                    onClick={() => trackEvent('link_click', { label: social.platform, url: social.url })}
                   >
                     {getSocialIcon(social.platform)}
                     <span className="social-label">{social.platform}</span>
@@ -256,6 +262,7 @@ const Contact = () => {
             {/* Resume Download */}
             <div className="resume-download">
               <a
+                onClick={() => trackEvent('link_click', { label: 'Resume', url: '/Resume.pdf' })}
                 href="/Resume.pdf"
                 download="Arun_Kumar_Resume.pdf"
                 className="download-btn"

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { portfolioData } from '../data/mock';
 import { User, Code2, Database, Brain, Target, Coffee, Zap, GitBranch, GraduationCap, Award, Languages } from 'lucide-react';
+import useAnalytics from '../hooks/useAnalytics';
 
 const About = () => {
+  const { trackEvent } = useAnalytics();
   const [visibleStats, setVisibleStats] = useState(new Set());
   const [visibleAdditionalStats, setVisibleAdditionalStats] = useState(new Set());
   const [scanlineActive, setScanlineActive] = useState(false);
@@ -59,6 +61,7 @@ const About = () => {
 
   const handleCertificateClick = (statLabel) => {
     if (statLabel.includes('Certificates')) {
+      trackEvent('button_click', { label: 'About: Certificates' });
       setCertificateModalOpen(true);
     }
   };

@@ -32,6 +32,12 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [totalVisitors, setTotalVisitors] = useState(0);
+    const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
+    const [isTogglingAnalytics, setIsTogglingAnalytics] = useState(false);
+    const [allowDevTracking, setAllowDevTracking] = useState(false);
+    const [isTogglingAllowDev, setIsTogglingAllowDev] = useState(false);
+    const [settingsUpdatedAt, setSettingsUpdatedAt] = useState(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Reply Modal State
     const [replyModalOpen, setReplyModalOpen] = useState(false);
@@ -53,16 +59,23 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
         }
     }, [token]);
 
-    const fetchData = useCallback(async () => {
+    const fetchData = useCallback(async (options = {}) => {
+        const { manual = false } = options;
+
+        if (manual) {
+            setIsRefreshing(true);
+        }
+
         try {
-            const [statsData, extendedData, projectsData, visitorsData, eventsData, liveDataRes, messagesData] = await Promise.all([
+            const [statsData, extendedData, projectsData, visitorsData, eventsData, liveDataRes, messagesData, statusData] = await Promise.all([
                 fetchWithAuth('/api/analytics/stats'),
                 fetchWithAuth('/api/analytics/extended-stats'),
                 fetchWithAuth('/api/analytics/top-projects'),
                 fetchWithAuth(`/api/analytics/visitors?page=${page}&limit=15`),
                 fetchWithAuth('/api/analytics/events?limit=30'),
                 fetchWithAuth('/api/analytics/live'),
-                fetchWithAuth('/api/contacts')
+                fetchWithAuth('/api/contacts'),
+                fetchWithAuth('/api/analytics/status')
             ]);
 
             if (statsData.success && statsData.stats) {
@@ -88,10 +101,22 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
             if (messagesData.success) {
                 setMessages(messagesData.contacts || []);
             }
+            if (statusData?.success && typeof statusData.enabled === 'boolean') {
+                setAnalyticsEnabled(statusData.enabled);
+            }
+            if (statusData?.success && typeof statusData.allowDev === 'boolean') {
+                setAllowDevTracking(statusData.allowDev);
+            }
+            if (statusData?.success && statusData.updatedAt) {
+                setSettingsUpdatedAt(statusData.updatedAt);
+            }
         } catch (error) {
             console.error('Failed to fetch analytics:', error);
         } finally {
             setLoading(false);
+            if (manual) {
+                setIsRefreshing(false);
+            }
         }
     }, [fetchWithAuth, page]);
 
@@ -372,6 +397,72 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
         }
     };
 
+    const toggleAnalytics = async () => {
+        if (isTogglingAnalytics) return;
+        setIsTogglingAnalytics(true);
+
+        try {
+            const response = await fetch(`${API_URL}/api/analytics/status`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ enabled: !analyticsEnabled })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setAnalyticsEnabled(Boolean(data.enabled));
+                if (data.updatedAt) setSettingsUpdatedAt(data.updatedAt);
+            } else {
+                alert(data.message || 'Failed to update analytics status');
+            }
+        } catch (error) {
+            console.error('Failed to toggle analytics:', error);
+            alert('Failed to update analytics status');
+        } finally {
+            setIsTogglingAnalytics(false);
+        }
+    };
+
+    const toggleAllowDevTracking = async () => {
+        if (isTogglingAllowDev) return;
+        setIsTogglingAllowDev(true);
+
+        const nextValue = !allowDevTracking;
+
+        try {
+            const response = await fetch(`${API_URL}/api/analytics/status`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ allowDev: nextValue })
+            });
+
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setAllowDevTracking(Boolean(data.allowDev));
+                if (data.updatedAt) setSettingsUpdatedAt(data.updatedAt);
+                try {
+                    localStorage.setItem('analytics_allow_dev', data.allowDev ? 'true' : 'false');
+                    window.dispatchEvent(new Event('analytics-config-updated'));
+                } catch (storageError) {
+                    console.warn('Failed to persist analytics allow-dev flag:', storageError);
+                }
+            } else {
+                alert(data.message || 'Failed to update dev tracking');
+            }
+        } catch (error) {
+            console.error('Failed to toggle dev tracking:', error);
+            alert('Failed to update dev tracking');
+        } finally {
+            setIsTogglingAllowDev(false);
+        }
+    };
+
     const calculateDonutData = (data, total) => {
         if (!data || data.length === 0 || total === 0) return [];
         const colors = ['#00ff88', '#00aaff', '#ff6b6b', '#ffd93d', '#6c5ce7', '#a29bfe'];
@@ -421,6 +512,25 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
                 </div>
                 <div className="header-right">
                     <span className="last-updated">Last updated: {new Date().toLocaleTimeString()}</span>
+                    {settingsUpdatedAt && (
+                        <span className="settings-updated">
+                            Settings: {formatDate(settingsUpdatedAt)}
+                        </span>
+                    )}
+                    <button
+                        className={`tracking-btn ${analyticsEnabled ? 'active' : 'paused'}`}
+                        onClick={toggleAnalytics}
+                        disabled={isTogglingAnalytics}
+                    >
+                        {isTogglingAnalytics ? 'Updating...' : (analyticsEnabled ? 'Tracking: On' : 'Tracking: Paused')}
+                    </button>
+                    <button
+                        className={`tracking-btn dev-toggle ${allowDevTracking ? 'active' : 'paused'}`}
+                        onClick={toggleAllowDevTracking}
+                        disabled={isTogglingAllowDev}
+                    >
+                        {isTogglingAllowDev ? 'Updating...' : (allowDevTracking ? 'Local Dev: On' : 'Local Dev: Off')}
+                    </button>
                     <button className="reset-btn" onClick={handleResetAllData}>
                         🗑️ Reset Data
                     </button>
@@ -1280,8 +1390,12 @@ const AnalyticsDashboard = ({ token, onLogout }) => {
             )}
 
             {/* Refresh Button */}
-            <button className="refresh-btn" onClick={fetchData}>
-                🔄 Refresh Data
+            <button
+                className="refresh-btn"
+                onClick={() => fetchData({ manual: true })}
+                disabled={loading || isRefreshing}
+            >
+                {isRefreshing ? 'Refreshing...' : '🔄 Refresh Data'}
             </button>
         </div>
     );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Hero from './components/Hero';
 import About from './components/About';
 import Projects from './components/Projects';
@@ -7,6 +7,8 @@ import Skills from './components/Skills';
 import Contact from './components/Contact';
 import AdminAnalytics from './components/admin/AdminAnalytics';
 import { useAudio, AUDIO_STATES } from './components/AudioManager';
+import AnalyticsTracker from './components/AnalyticsTracker';
+import useAnalytics from './hooks/useAnalytics';
 import './components/MobileStyles.css';
 
 // Lazy load background effects for better initial performance
@@ -35,6 +37,7 @@ const App = () => {
   };
 
   const Portfolio = () => {
+    const { trackEvent } = useAnalytics();
     const [menuExpanded, setMenuExpanded] = useState(false);
     const [dockMinimized, setDockMinimized] = useState(false);
     const [lastScrollY, setLastScrollY] = useState(0);
@@ -101,9 +104,10 @@ const App = () => {
     };
     
     // Smooth scroll with menu close
-    const handleNavClick = (e, targetId) => {
+    const handleNavClick = (e, targetId, label) => {
       e.preventDefault();
       setMenuExpanded(false);
+      trackEvent('link_click', { label: `Nav: ${label}`, target: targetId });
       
       if (targetId === '#hero' || targetId === '#home') {
         // Scroll to top for home
@@ -148,27 +152,27 @@ const App = () => {
           {/* Floating Navigation Items */}
           <div className={`nav-orbit ${menuExpanded ? 'expanded' : ''}`}>
             <a href="#hero" className="orbit-item" data-label="Home" 
-               onClick={(e) => handleNavClick(e, '#hero')}>
+              onClick={(e) => handleNavClick(e, '#hero', 'Home')}>
               <div className="orbit-icon">🏠</div>
               <div className="orbit-trail"></div>
             </a>
             <a href="#about" className="orbit-item" data-label="About"
-               onClick={(e) => handleNavClick(e, '#about')}>
+              onClick={(e) => handleNavClick(e, '#about', 'About')}>
               <div className="orbit-icon">👤</div>
               <div className="orbit-trail"></div>
             </a>
             <a href="#projects" className="orbit-item" data-label="Projects"
-               onClick={(e) => handleNavClick(e, '#projects')}>
+              onClick={(e) => handleNavClick(e, '#projects', 'Projects')}>
               <div className="orbit-icon">⚡</div>
               <div className="orbit-trail"></div>
             </a>
             <a href="#skills" className="orbit-item" data-label="Skills"
-               onClick={(e) => handleNavClick(e, '#skills')}>
+              onClick={(e) => handleNavClick(e, '#skills', 'Skills')}>
               <div className="orbit-icon">🧬</div>
               <div className="orbit-trail"></div>
             </a>
             <a href="#contact" className="orbit-item" data-label="Contact"
-               onClick={(e) => handleNavClick(e, '#contact')}>
+              onClick={(e) => handleNavClick(e, '#contact', 'Contact')}>
               <div className="orbit-icon">📡</div>
               <div className="orbit-trail"></div>
             </a>
@@ -206,32 +210,44 @@ const App = () => {
     );
   };
 
-  return (
-    <div className="App">
-      {/* Terminal Background - Matrix rain effect (only on desktop) */}
-      {!isMobile && !prefersReducedMotion && (
-        <Suspense fallback={null}>
-          <TerminalBackground opacity={0.05} speed={0.05} />
-        </Suspense>
-      )}
+  const RouteShell = () => {
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin-analytics');
 
-      {/* Terminal Boot Overlay */}
-      {showTerminal && !terminalComplete && (
-        <Suspense fallback={null}>
-          <TerminalOverlay
-            isVisible={showTerminal}
-            autoStart={true}
-            onComplete={handleTerminalComplete}
-          />
-        </Suspense>
-      )}
+    return (
+      <>
+        {/* Terminal Background - Matrix rain effect (only on desktop) */}
+        {!isAdminRoute && !isMobile && !prefersReducedMotion && (
+          <Suspense fallback={null}>
+            <TerminalBackground opacity={0.05} speed={0.05} />
+          </Suspense>
+        )}
 
-      {/* Main Portfolio Content */}
-      <BrowserRouter>
+        {/* Terminal Boot Overlay */}
+        {!isAdminRoute && showTerminal && !terminalComplete && (
+          <Suspense fallback={null}>
+            <TerminalOverlay
+              isVisible={showTerminal}
+              autoStart={true}
+              onComplete={handleTerminalComplete}
+            />
+          </Suspense>
+        )}
+
+        {/* Main Portfolio Content */}
+        <AnalyticsTracker />
         <Routes>
           <Route path="/" element={<Portfolio />} />
-          <Route path="/adminanalytics" element={<AdminAnalytics />} />
+          <Route path="/admin-analytics" element={<AdminAnalytics />} />
         </Routes>
+      </>
+    );
+  };
+
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <RouteShell />
       </BrowserRouter>
     </div>
   );

@@ -33,6 +33,15 @@
     color: #666;
 }
 
+.settings-updated {
+    font-size: 12px;
+    color: #00aaff;
+    background: rgba(0, 170, 255, 0.1);
+    border: 1px solid rgba(0, 170, 255, 0.3);
+    padding: 6px 10px;
+    border-radius: 8px;
+}
+
 .dashboard-header h1 {
     font-family: 'Orbitron', sans-serif;
     font-size: 28px;
@@ -86,6 +95,54 @@
 
 .logout-btn:hover {
     background: rgba(255, 68, 68, 0.2);
+}
+
+.tracking-btn {
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+    color: #00ff88;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.tracking-btn.paused {
+    background: rgba(255, 170, 0, 0.1);
+    border-color: rgba(255, 170, 0, 0.3);
+    color: #ffb347;
+}
+
+.tracking-btn:hover:not(:disabled) {
+    box-shadow: 0 0 18px rgba(0, 255, 136, 0.2);
+}
+
+.tracking-btn.paused:hover:not(:disabled) {
+    box-shadow: 0 0 18px rgba(255, 170, 0, 0.2);
+}
+
+.tracking-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.tracking-btn.dev-toggle {
+    background: rgba(0, 170, 255, 0.1);
+    border-color: rgba(0, 170, 255, 0.3);
+    color: #00aaff;
+}
+
+.tracking-btn.dev-toggle.paused {
+    background: rgba(255, 170, 0, 0.1);
+    border-color: rgba(255, 170, 0, 0.3);
+    color: #ffb347;
+}
+
+.tracking-btn.dev-toggle:hover:not(:disabled) {
+    box-shadow: 0 0 18px rgba(0, 170, 255, 0.2);
 }
 
 /* Stats Grid - Scoped to analytics dashboard to override App.css conflicts */
@@ -1342,6 +1399,14 @@
 .refresh-btn:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 30px rgba(0, 255, 136, 0.4);
+}
+
+.refresh-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+    transform: none;
+    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.15);
 }
 
 /* Loading */

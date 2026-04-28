@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { portfolioData } from '../data/mock';
 import { Code, Database, Brain, Zap, ChevronRight, Activity, Cloud, Leaf, FileCode, Palette, GitBranch, Landmark, Send, Link2 } from 'lucide-react';
+import useAnalytics from '../hooks/useAnalytics';
 
 const Skills = () => {
+  const { trackEvent } = useAnalytics();
   const [visibleSkills, setVisibleSkills] = useState(new Set());
   const [activeCategory, setActiveCategory] = useState(0);
   const skillsRef = useRef(null);
@@ -107,7 +109,10 @@ const Skills = () => {
               <button
                 key={index}
                 className={`category-btn ${activeCategory === index ? 'active' : ''}`}
-                onClick={() => setActiveCategory(index)}
+                onClick={() => {
+                  trackEvent('button_click', { label: `Skills: ${category.title}` });
+                  setActiveCategory(index);
+                }}
                 title={category.title} // Adding title attribute for tooltip on hover
               >
                 {getCategoryIcon(category.title)}
