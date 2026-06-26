@@ -329,66 +329,86 @@ const TerminalOverlay = ({ isVisible, autoStart = false, onComplete }) => {
   const terminalBodyRef = useRef(null);
   const timeoutRef = useRef(null);
 
+  const startBootSequence = () => {
+    let currentIndex = 0;
+
+    // 2.5-second lead-in: empty terminal with opening animation
+    timeoutRef.current = setTimeout(() => {
+      setBootReady(true); // reveal terminal text after lead-in
+
+      const runBoot = () => {
+        if (currentIndex < BOOT_SEQUENCE.length) {
+          const line = BOOT_SEQUENCE[currentIndex];
+          if (line) {
+            setLines(prev => [...prev, line.text]);
+            currentIndex++;
+            timeoutRef.current = setTimeout(runBoot, line.delay + 200);
+          }
+        } else {
+          timeoutRef.current = setTimeout(() => {
+            // Show Tactical HUD
+            setShowHackedScreen(true);
+
+            // Tactical phase
+            let p = 0;
+            const pInterval = setInterval(() => {
+              p += 1;
+              if (p >= 100) {
+                p = 100;
+                clearInterval(pInterval);
+
+                // Transition to Success Screen
+                timeoutRef.current = setTimeout(() => {
+                  setShowSuccessScreen(true);
+
+                  // Success screen = 3 seconds before closing
+                  timeoutRef.current = setTimeout(() => {
+                    setIsBooting(false);
+                    if (onComplete) onComplete();
+                  }, 3000);
+                }, 800);
+              }
+              setProgress(p);
+            }, 80);
+          }, 1000);
+        }
+      };
+
+      runBoot();
+    }, 2500);
+  };
+
+  // Single-click handler: set initialized AND start the boot immediately
   const handleStart = () => {
     setIsInitialized(true);
     setAudioState(AUDIO_STATES.BOOT);
+    startBootSequence();
   };
 
+  // Disable body scroll when terminal is active and scroll to top on complete
   useEffect(() => {
-    if (autoStart && isVisible && isInitialized) {
-      let currentIndex = 0;
+    if (isVisible) {
+      const originalOverflow = document.body.style.overflow;
+      const originalHeight = document.body.style.height;
 
-      // 1-second lead-in: empty terminal with opening animation
-      timeoutRef.current = setTimeout(() => {
-        setBootReady(true); // reveal terminal text after 1s
-
-        const runBoot = () => {
-          if (currentIndex < BOOT_SEQUENCE.length) {
-            const line = BOOT_SEQUENCE[currentIndex];
-            if (line) {
-              setLines(prev => [...prev, line.text]);
-              currentIndex++;
-              timeoutRef.current = setTimeout(runBoot, line.delay + 200);
-            }
-          } else {
-            timeoutRef.current = setTimeout(() => {
-              // Show Tactical HUD (music continues from boot - no restart)
-              setShowHackedScreen(true);
-
-              // Tactical phase = 7 seconds: 100 increments × 70ms = 7000ms
-              let p = 0;
-              const pInterval = setInterval(() => {
-                p += 1; // 1 per tick × 70ms = 7000ms for 100%
-                if (p >= 100) {
-                  p = 100;
-                  clearInterval(pInterval);
-
-                  // Transition to Success Screen
-                  timeoutRef.current = setTimeout(() => {
-                    // Show Success Screen (music continues - no restart)
-                    setShowSuccessScreen(true);
-
-                    // Success screen = 3 seconds before closing
-                    timeoutRef.current = setTimeout(() => {
-                      setIsBooting(false);
-                      if (onComplete) onComplete();
-                    }, 3000);
-                  }, 800);
-                }
-                setProgress(p);
-              }, 80); // 90ms × 100 steps = 9000ms (9s tactical)
-            }, 1000);
-          }
-        };
-
-        runBoot();
-      }, 2500); // 3 second boot opening lead-in
+      document.body.style.overflow = 'hidden';
+      document.body.style.height = '100vh';
+      window.scrollTo(0, 0);
 
       return () => {
-        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        document.body.style.overflow = originalOverflow;
+        document.body.style.height = originalHeight;
+        window.scrollTo(0, 0);
       };
     }
-  }, [autoStart, isVisible, isInitialized, onComplete, setAudioState]);
+  }, [isVisible]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   // Handle auto-scroll
   useEffect(() => {
