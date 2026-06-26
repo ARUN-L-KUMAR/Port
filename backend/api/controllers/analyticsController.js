@@ -206,9 +206,9 @@ exports.trackVisit = async (req, res) => {
             // Store in DB
             if (db) await db.collection('visits').insertOne(visitData);
 
-            // Send Entry Alert for LinkedIn
-            if (EMAIL_ALERTS_ENABLED && !isAdminPath && source === 'LinkedIn') {
-                console.log(`🔔 New LinkedIn visitor! Sending Entry Alert...`);
+            // Send Entry Alert for all visitors (not just LinkedIn)
+            if (EMAIL_ALERTS_ENABLED && !isAdminPath) {
+                console.log(`🔔 New visitor from ${source}! Sending Entry Alert...`);
                 sendEntryAlertEmail(visitData).catch(err => console.error('Entry alert failed:', err));
             }
         }
